@@ -10,11 +10,11 @@ import org.springframework.stereotype.Component;
 public class UserMapper {
     public User mapUserRegisterDtoToUser(UserRegisterRequestDto userRegisterRequestDto, String encodedPassword){
         return new User(
-                userRegisterRequestDto.getUsername(),
+                userRegisterRequestDto.username(),
                 encodedPassword,
-                userRegisterRequestDto.getFirstName(),
-                userRegisterRequestDto.getLastName(),
-                userRegisterRequestDto.getAuthRole()
+                userRegisterRequestDto.firstName(),
+                userRegisterRequestDto.lastName(),
+                userRegisterRequestDto.authRole()
         );
     }
 }

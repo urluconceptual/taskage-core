@@ -29,10 +29,10 @@ public class UserService {
     public String authenticate(UserLoginRequestDto userLoginRequestDto)
             throws UserNotFoundException, UnauthorizedUserException {
         User user = userRepository
-                .findByUsername(userLoginRequestDto.getUsername())
+                .findByUsername(userLoginRequestDto.username())
                 .orElseThrow(UserNotFoundException::new);
 
-        if (!passwordEncoder.matches(userLoginRequestDto.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(userLoginRequestDto.password(), user.getPassword())) {
             throw new UnauthorizedUserException();
         }
 
@@ -40,17 +40,17 @@ public class UserService {
     }
 
     public void create(UserRegisterRequestDto userRegisterRequestDto) throws UsernameConflictException {
-        userRepository.findByUsername(userRegisterRequestDto.getUsername()).ifPresent(username -> {
+        userRepository.findByUsername(userRegisterRequestDto.username()).ifPresent(username -> {
             throw new UsernameConflictException();
         });
 
-        final String encodedPassword = passwordEncoder.encode(userRegisterRequestDto.getPassword());
+        final String encodedPassword = passwordEncoder.encode(userRegisterRequestDto.password());
 
         User newUser = userMapper.mapUserRegisterDtoToUser(userRegisterRequestDto, encodedPassword);
-        JobTitle jobTitle = userRegisterRequestDto.getJobTitleId() != null &&
-                jobTitleRepository.findById(userRegisterRequestDto.getJobTitleId()).isPresent() ?
-                jobTitleRepository.findById(userRegisterRequestDto.getJobTitleId()).get() :
-                new JobTitle(userRegisterRequestDto.getNewJobTitleName());
+        JobTitle jobTitle = userRegisterRequestDto.jobTitleId() != null &&
+                jobTitleRepository.findById(userRegisterRequestDto.jobTitleId()).isPresent() ?
+                jobTitleRepository.findById(userRegisterRequestDto.jobTitleId()).get() :
+                new JobTitle(userRegisterRequestDto.newJobTitleName());
 
         newUser.setJobTitle(jobTitle);
 

@@ -2,11 +2,16 @@ package com.taskage.core.enitity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
 @Entity(name = "Team")
+@NoArgsConstructor
 public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,4 +20,15 @@ public class Team {
 
     @Column(nullable = false, unique = true)
     private String name;
+
+    @OneToOne
+    @JoinColumn(name = "team_lead_id", referencedColumnName = "id")
+    private User teamLead;
+
+    @OneToMany(mappedBy = "team", fetch = FetchType.LAZY)
+    public Set<User> teamMembers = new HashSet<>();
+
+    public Team(String name) {
+        this.name = name;
+    }
 }

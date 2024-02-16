@@ -34,20 +34,15 @@ public class User {
     @JoinColumn(name = "job_title_id", referencedColumnName = "id", nullable = false)
     private JobTitle jobTitle;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "team_id")
+    private Team team;
+
     public User(String username, String password, String firstName, String lastName, String authRole) {
         this.username = username;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.authRole = authRole;
-    }
-
-    public User(String username, String password, String firstName, String lastName, String authRole, JobTitle jobTitle) {
-        this.username = username;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.authRole = authRole;
-        this.jobTitle = jobTitle;
     }
 }

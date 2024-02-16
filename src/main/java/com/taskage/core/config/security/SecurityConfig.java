@@ -30,7 +30,8 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/users/login").permitAll()
-                        .requestMatchers("/users/register").hasRole("ADMIN"))
+                        .requestMatchers("/users/register").hasRole("ADMIN")
+                        .requestMatchers("/teams/**").hasRole("ADMIN"))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthorizationFilter,
