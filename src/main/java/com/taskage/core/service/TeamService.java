@@ -3,7 +3,7 @@ package com.taskage.core.service;
 import com.taskage.core.dto.team.TeamCreateRequestDto;
 import com.taskage.core.enitity.Team;
 import com.taskage.core.enitity.User;
-import com.taskage.core.exception.UserNotFoundException;
+import com.taskage.core.exception.notFound.UserNotFoundException;
 import com.taskage.core.mapper.TeamMapper;
 import com.taskage.core.repository.TeamRepository;
 import com.taskage.core.repository.UserRepository;
