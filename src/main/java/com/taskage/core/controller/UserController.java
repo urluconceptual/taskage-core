@@ -7,6 +7,7 @@ import com.taskage.core.dto.user.UserRegisterResponseDto;
 import com.taskage.core.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/users")
+@Slf4j
 public class UserController {
     private UserService userService;
 
@@ -26,6 +28,7 @@ public class UserController {
         try {
             token = userService.authenticate(userLoginRequestDto);
         } catch (Exception e) {
+            log.error(e.getMessage());
             return ResponseEntity.badRequest().body(new UserLoginResponseDto(e.getMessage()));
         }
         return ResponseEntity.ok(new UserLoginResponseDto(token));
