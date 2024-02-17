@@ -19,11 +19,7 @@ public class TeamController {
 
     @PostMapping(path = "/create")
     public ResponseEntity<TeamCreateResponseDto> create(@RequestBody @Valid TeamCreateRequestDto teamCreateRequestDto) {
-        try {
-            teamService.create(teamCreateRequestDto);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new TeamCreateResponseDto(e.getMessage()));
-        }
+        teamService.create(teamCreateRequestDto);
         return ResponseEntity.ok(new TeamCreateResponseDto("Successfully created team!"));
     }
 }

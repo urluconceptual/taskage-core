@@ -24,24 +24,14 @@ public class UserController {
 
     @PostMapping(path = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserLoginResponseDto> login(@RequestBody @Valid UserLoginRequestDto userLoginRequestDto) {
-        String token;
-        try {
-            token = userService.authenticate(userLoginRequestDto);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return ResponseEntity.badRequest().body(new UserLoginResponseDto(e.getMessage()));
-        }
+        String token = userService.authenticate(userLoginRequestDto);
         return ResponseEntity.ok(new UserLoginResponseDto(token));
     }
 
     @PostMapping(path = "/register")
     public ResponseEntity<UserRegisterResponseDto> register(
             @RequestBody @Valid UserRegisterRequestDto userRegisterRequestDto) {
-        try {
             userService.create(userRegisterRequestDto);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new UserRegisterResponseDto(e.getMessage()));
-        }
         return ResponseEntity.ok(new UserRegisterResponseDto("Successfully registered user!"));
     }
 }
