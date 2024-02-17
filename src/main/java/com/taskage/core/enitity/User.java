@@ -24,10 +24,10 @@ public class User {
     private String lastName;
 
     @Column(nullable = false)
-    @Setter(value= AccessLevel.PRIVATE)
+    @Setter(value = AccessLevel.PRIVATE)
     private String password;
 
-    @Column(name="auth_role", nullable = false)
+    @Column(name = "auth_role", nullable = false)
     private String authRole;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)

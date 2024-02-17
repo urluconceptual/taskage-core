@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 @NoArgsConstructor
 public class TeamMapper {
-    public Team mapTeamCreateRequestDtoToTeam(TeamCreateRequestDto teamCreateRequestDto){
+    public Team mapTeamCreateRequestDtoToTeam(TeamCreateRequestDto teamCreateRequestDto) {
         return new Team(
                 teamCreateRequestDto.name()
         );
