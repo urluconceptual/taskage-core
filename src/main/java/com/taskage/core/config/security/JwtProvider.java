@@ -30,7 +30,7 @@ public class JwtProvider {
     private String secret;
 
     public String generateToken(String username, Long ttl, String authority) {
-        Date expriationDate = Date.from(ZonedDateTime.now().plusMinutes(ttl).toInstant());
+        Date expriationDate = Date.from(ZonedDateTime.now().plusHours(ttl).toInstant());
 
         return Jwts.builder()
                 .setSubject(username)

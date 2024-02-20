@@ -3,6 +3,7 @@ package com.taskage.core.service;
 import com.taskage.core.config.security.JwtProvider;
 import com.taskage.core.dto.user.UserLoginRequestDto;
 import com.taskage.core.dto.user.UserRegisterRequestDto;
+import com.taskage.core.dto.user.UserResponseDto;
 import com.taskage.core.enitity.JobTitle;
 import com.taskage.core.enitity.User;
 import com.taskage.core.exception.UnauthorizedUserException;
@@ -15,10 +16,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class UserService {
-    private final Long TTL = 5L;
+    private final Long TTL = 8L;
 
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
@@ -55,5 +58,9 @@ public class UserService {
         newUser.setJobTitle(jobTitle);
 
         userRepository.save(newUser);
+    }
+
+    public List<UserResponseDto> getAll() {
+        return userRepository.findAll().stream().map(userMapper::mapUserToUserResponseDto).toList();
     }
 }

@@ -15,12 +15,15 @@ import java.util.Set;
 public class Team {
     @OneToMany(mappedBy = "team", fetch = FetchType.LAZY)
     public Set<User> teamMembers = new HashSet<>();
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false)
     private Integer id;
+
     @Column(nullable = false, unique = true)
     private String name;
+
     @OneToOne
     @JoinColumn(name = "team_lead_id", referencedColumnName = "id")
     private User teamLead;

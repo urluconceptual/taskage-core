@@ -1,5 +1,6 @@
 package com.taskage.core.enitity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,6 +26,7 @@ public class User {
 
     @Column(nullable = false)
     @Setter(value = AccessLevel.PRIVATE)
+    @JsonIgnore
     private String password;
 
     @Column(name = "auth_role", nullable = false)
