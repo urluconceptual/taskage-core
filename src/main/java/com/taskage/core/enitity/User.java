@@ -8,6 +8,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity(name = "App_User")
 public class User {
     @Id
@@ -32,19 +33,11 @@ public class User {
     @Column(name = "auth_role", nullable = false)
     private String authRole;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "job_title_id", referencedColumnName = "id", nullable = false)
     private JobTitle jobTitle;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "team_id")
     private Team team;
-
-    public User(String username, String password, String firstName, String lastName, String authRole) {
-        this.username = username;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.authRole = authRole;
-    }
 }

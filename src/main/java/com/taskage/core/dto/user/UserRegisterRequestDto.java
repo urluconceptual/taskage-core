@@ -10,5 +10,5 @@ public record UserRegisterRequestDto(@NotBlank(message = "Username cannot be bla
                                      @NotBlank(message = "First name cannot be blank") String firstName,
                                      @NotBlank(message = "Last name cannot be blank") String lastName,
                                      @NotBlank(message = "Level of authorization is required") String authRole,
-                                     Integer jobTitleId, String newJobTitleName) {
+                                     Integer jobTitleId, String newJobTitleName, Integer teamId) {
 }

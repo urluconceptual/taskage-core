@@ -1,17 +1,18 @@
 package com.taskage.core.enitity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@Builder
 @Entity(name = "Job_Title")
+@AllArgsConstructor
 public class JobTitle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,9 +23,5 @@ public class JobTitle {
     private String name;
 
     @OneToMany(mappedBy = "jobTitle", fetch = FetchType.LAZY)
-    private Set<User> users = new HashSet<>();
-
-    public JobTitle(String name) {
-        this.name = name;
-    }
+    private Set<User> users;
 }

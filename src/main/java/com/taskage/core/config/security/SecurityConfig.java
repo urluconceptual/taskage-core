@@ -24,6 +24,9 @@ import java.util.List;
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
     public static final String ADMIN = "ADMIN";
+    public static final String BASIC = "BASIC";
+    public static final String MANAGER = "MANAGER";
+
     private final AuthorizationFilter jwtAuthorizationFilter;
 
     @Bean
@@ -49,8 +52,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/users/login").permitAll()
                         .requestMatchers("/users/register").hasRole(ADMIN)
-                        .requestMatchers("/users/getAll").hasRole(ADMIN)
-                        .requestMatchers("/teams/**").hasRole(ADMIN))
+                        .requestMatchers("/users/checkLocalCredentials").hasAnyRole(ADMIN, BASIC, MANAGER)
+                        .requestMatchers("/users/getAll").hasAnyRole(ADMIN, BASIC, MANAGER)
+                        .requestMatchers("/teams/create").hasAnyRole(ADMIN)
+                        .requestMatchers("/teams/getAll").hasAnyRole(ADMIN, BASIC, MANAGER))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthorizationFilter,

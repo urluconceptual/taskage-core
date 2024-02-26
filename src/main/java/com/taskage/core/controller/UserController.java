@@ -18,10 +18,14 @@ import java.util.List;
 public class UserController {
     private UserService userService;
 
+    @GetMapping(path = "/checkLocalCredentials")
+    public ResponseEntity<String> checkLocalCredentials() {
+        return ResponseEntity.ok("Credentials are valid!");
+    }
+
     @PostMapping(path = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserLoginResponseDto> login(@RequestBody @Valid UserLoginRequestDto userLoginRequestDto) {
-        String token = userService.authenticate(userLoginRequestDto);
-        return ResponseEntity.ok(new UserLoginResponseDto(token));
+        return ResponseEntity.ok(userService.authenticate(userLoginRequestDto));
     }
 
     @PostMapping(path = "/register")
@@ -34,5 +38,10 @@ public class UserController {
     @GetMapping(path = "/getAll")
     public ResponseEntity<List<UserResponseDto>> getAll() {
         return ResponseEntity.ok(userService.getAll());
+    }
+
+    @GetMapping(path = "/get/{id}")
+    public ResponseEntity<UserResponseDto> get(@PathVariable Integer id) {
+        return ResponseEntity.ok(userService.get(id));
     }
 }
