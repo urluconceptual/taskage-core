@@ -55,7 +55,9 @@ public class SecurityConfig {
                         .requestMatchers("/users/checkLocalCredentials").hasAnyRole(ADMIN, BASIC, MANAGER)
                         .requestMatchers("/users/getAll").hasAnyRole(ADMIN, BASIC, MANAGER)
                         .requestMatchers("/teams/create").hasAnyRole(ADMIN)
-                        .requestMatchers("/teams/getAll").hasAnyRole(ADMIN, BASIC, MANAGER))
+                        .requestMatchers("/teams/getAll").hasAnyRole(ADMIN, BASIC, MANAGER)
+                        .requestMatchers("/teams/update").hasAnyRole(ADMIN)
+                        .requestMatchers("/teams/delete/**").hasAnyRole(ADMIN))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthorizationFilter,

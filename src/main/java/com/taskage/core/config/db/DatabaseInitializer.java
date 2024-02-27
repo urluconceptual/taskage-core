@@ -1,6 +1,6 @@
 package com.taskage.core.config.db;
 
-import com.taskage.core.dto.team.TeamCreateRequestDto;
+import com.taskage.core.dto.team.TeamSaveRequestDto;
 import com.taskage.core.dto.user.UserRegisterRequestDto;
 import com.taskage.core.repository.UserRepository;
 import com.taskage.core.service.TeamService;
@@ -62,8 +62,8 @@ public class DatabaseInitializer {
                             "Database Administrator", null));
 
 
-            teamService.create(new TeamCreateRequestDto("Development Team", 2, new ArrayList<>(List.of(2))));
-            teamService.create(new TeamCreateRequestDto("Data Team", 7, new ArrayList<>(List.of(7))));
+            teamService.create(new TeamSaveRequestDto(null, "Development Team", 2, new ArrayList<>(List.of(2))));
+            teamService.create(new TeamSaveRequestDto(null, "Data Team", 7, new ArrayList<>(List.of(7))));
         }
     }
 }
