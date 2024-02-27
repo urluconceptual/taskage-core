@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record TeamSaveRequestDto(Integer id,
-        @NotBlank(message = "Team name is required.") String name,
+                                 @NotBlank(message = "Team name is required.") String name,
                                  @NotNull(message = "Team lead is required.") Integer teamLeadId,
                                  @NotNull(message = "Team members list is required.") List<Integer> teamMemberIds) {
 }

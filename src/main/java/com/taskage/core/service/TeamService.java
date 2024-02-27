@@ -1,7 +1,7 @@
 package com.taskage.core.service;
 
-import com.taskage.core.dto.team.TeamSaveRequestDto;
 import com.taskage.core.dto.team.TeamResponseDto;
+import com.taskage.core.dto.team.TeamSaveRequestDto;
 import com.taskage.core.enitity.Team;
 import com.taskage.core.exception.notFound.NotFoundException;
 import com.taskage.core.exception.notFound.UserNotFoundException;
@@ -27,14 +27,15 @@ public class TeamService {
     }
 
     public void update(TeamSaveRequestDto teamSaveRequestDto) throws UserNotFoundException {
-        var team = teamRepository.findById(teamSaveRequestDto.id()).orElseThrow(() -> new NotFoundException("Team not found"));
+        var team = teamRepository.findById(teamSaveRequestDto.id())
+                .orElseThrow(() -> new NotFoundException("Team not found"));
         team.setName(teamSaveRequestDto.name());
         teamRepository.save(team);
         removeAllUsersFromTeam(team.getId());
         userService.assignTeamToAll(teamSaveRequestDto.teamMemberIds(), team);
     }
 
-    public void delete (int teamId) {
+    public void delete(int teamId) {
         removeAllUsersFromTeam(teamId);
         teamRepository.deleteById(teamId);
     }

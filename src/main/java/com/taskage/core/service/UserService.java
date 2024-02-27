@@ -30,8 +30,8 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
     private final JobTitleRepository jobTitleRepository;
-    private UserMapper userMapper;
     private final TeamRepository teamRepository;
+    private UserMapper userMapper;
 
     public UserLoginResponseDto authenticate(UserLoginRequestDto userLoginRequestDto)
             throws UserNotFoundException, UnauthorizedUserException {
@@ -59,8 +59,9 @@ public class UserService {
 
         User newUser = userMapper.mapUserRegisterDtoToUser(userRegisterRequestDto, encodedPassword);
         JobTitle jobTitle;
-        if (userRegisterRequestDto.jobTitleId() != null && jobTitleRepository.existsById(userRegisterRequestDto.jobTitleId()))
-                jobTitle = jobTitleRepository.findById(userRegisterRequestDto.jobTitleId()).get();
+        if (userRegisterRequestDto.jobTitleId() != null &&
+                jobTitleRepository.existsById(userRegisterRequestDto.jobTitleId()))
+            jobTitle = jobTitleRepository.findById(userRegisterRequestDto.jobTitleId()).get();
         else {
             jobTitle = JobTitle.builder().name(userRegisterRequestDto.newJobTitleName()).build();
             jobTitleRepository.save(jobTitle);
@@ -68,7 +69,7 @@ public class UserService {
 
         newUser.setJobTitle(jobTitle);
 
-        if(userRegisterRequestDto.teamId() != null && teamRepository.existsById(userRegisterRequestDto.teamId())) {
+        if (userRegisterRequestDto.teamId() != null && teamRepository.existsById(userRegisterRequestDto.teamId())) {
             newUser.setTeam(new Team(userRegisterRequestDto.teamId()));
         }
 
@@ -87,6 +88,7 @@ public class UserService {
     }
 
     public UserResponseDto get(Integer id) {
-        return userRepository.findById(id).map(userMapper::mapUserToUserResponseDto).orElseThrow(UserNotFoundException::new);
+        return userRepository.findById(id).map(userMapper::mapUserToUserResponseDto)
+                .orElseThrow(UserNotFoundException::new);
     }
 }

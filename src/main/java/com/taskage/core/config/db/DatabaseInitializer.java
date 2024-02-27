@@ -37,8 +37,9 @@ public class DatabaseInitializer {
                     null, null));
             userService.create(new UserRegisterRequestDto("emiller", "EMiller123!", "Emma", "Miller", "ROLE_BASIC",
                     null, "Data Analyst", null));
-            userService.create(new UserRegisterRequestDto("fbrown", "FBrown123!", "Frank", "Brown", "ROLE_MANAGER", null,
-                    "Data Scientist", null));
+            userService.create(
+                    new UserRegisterRequestDto("fbrown", "FBrown123!", "Frank", "Brown", "ROLE_MANAGER", null,
+                            "Data Scientist", null));
             userService.create(
                     new UserRegisterRequestDto("gdavis", "GDavis123!", "Grace", "Davis", "ROLE_BASIC", null,
                             "Project Manager", null));
