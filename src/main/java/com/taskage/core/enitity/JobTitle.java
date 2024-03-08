@@ -1,5 +1,6 @@
 package com.taskage.core.enitity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,6 +21,7 @@ public class JobTitle {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "jobTitle", fetch = FetchType.LAZY)
     private Set<User> users;
 }

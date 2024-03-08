@@ -57,7 +57,8 @@ public class SecurityConfig {
                         .requestMatchers("/teams/create").hasAnyRole(ADMIN)
                         .requestMatchers("/teams/getAll").hasAnyRole(ADMIN, BASIC, MANAGER)
                         .requestMatchers("/teams/update").hasAnyRole(ADMIN)
-                        .requestMatchers("/teams/delete/**").hasAnyRole(ADMIN))
+                        .requestMatchers("/teams/delete/**").hasAnyRole(ADMIN)
+                        .requestMatchers("/jobTitles/getAll").hasAnyRole(ADMIN))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthorizationFilter,

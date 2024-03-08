@@ -1,5 +1,6 @@
 package com.taskage.core.dto.user;
 
+import com.taskage.core.enitity.JobTitle;
 import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.Length;
 
@@ -10,5 +11,5 @@ public record UserRegisterRequestDto(@NotBlank(message = "Username cannot be bla
                                      @NotBlank(message = "First name cannot be blank") String firstName,
                                      @NotBlank(message = "Last name cannot be blank") String lastName,
                                      @NotBlank(message = "Level of authorization is required") String authRole,
-                                     Integer jobTitleId, String newJobTitleName, Integer teamId) {
+                                     @NotBlank(message = "Job title is required") JobTitle jobTitle, Integer teamId) {
 }

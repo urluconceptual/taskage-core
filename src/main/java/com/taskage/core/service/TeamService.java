@@ -4,7 +4,6 @@ import com.taskage.core.dto.team.TeamResponseDto;
 import com.taskage.core.dto.team.TeamSaveRequestDto;
 import com.taskage.core.enitity.Team;
 import com.taskage.core.exception.notFound.NotFoundException;
-import com.taskage.core.exception.notFound.UserNotFoundException;
 import com.taskage.core.mapper.TeamMapper;
 import com.taskage.core.repository.TeamRepository;
 import lombok.AllArgsConstructor;
@@ -19,14 +18,14 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private TeamMapper teamMapper;
 
-    public void create(TeamSaveRequestDto teamSaveRequestDto) throws UserNotFoundException {
+    public void create(TeamSaveRequestDto teamSaveRequestDto) throws NotFoundException {
         Team newTeam = teamMapper.mapTeamSaveRequestDtoToTeam(teamSaveRequestDto);
 
         teamRepository.save(newTeam);
         userService.assignTeamToAll(teamSaveRequestDto.teamMemberIds(), newTeam);
     }
 
-    public void update(TeamSaveRequestDto teamSaveRequestDto) throws UserNotFoundException {
+    public void update(TeamSaveRequestDto teamSaveRequestDto) throws NotFoundException {
         var team = teamRepository.findById(teamSaveRequestDto.id())
                 .orElseThrow(() -> new NotFoundException("Team not found"));
         team.setName(teamSaveRequestDto.name());
