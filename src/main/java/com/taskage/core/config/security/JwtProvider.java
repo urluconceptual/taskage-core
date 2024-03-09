@@ -30,14 +30,14 @@ public class JwtProvider {
     private String secret;
 
     public String generateToken(String username, Long ttl, String authority) {
-        Date expriationDate = Date.from(ZonedDateTime.now().plusMinutes(ttl).toInstant());
+        Date expriationDate = Date.from(ZonedDateTime.now().plusHours(ttl).toInstant());
 
         return Jwts.builder()
-                .setSubject(username)
-                .claim(AUTHORITY, Set.of(authority))
-                .setExpiration(expriationDate)
-                .signWith(getJwtKey(), SignatureAlgorithm.HS512)
-                .compact();
+                   .setSubject(username)
+                   .claim(AUTHORITY, Set.of(authority))
+                   .setExpiration(expriationDate)
+                   .signWith(getJwtKey(), SignatureAlgorithm.HS512)
+                   .compact();
     }
 
     public Key getJwtKey() {
@@ -52,9 +52,9 @@ public class JwtProvider {
         }
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(getJwtKey())
-                    .build()
-                    .parseClaimsJws(token);
+                .setSigningKey(getJwtKey())
+                .build()
+                .parseClaimsJws(token);
         } catch (JwtException e) {
             throw new UnauthorizedUserException();
         }
@@ -65,10 +65,10 @@ public class JwtProvider {
     public Authentication doAuthentication(String token) throws UnauthorizedUserException {
         try {
             Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(getJwtKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                                .setSigningKey(getJwtKey())
+                                .build()
+                                .parseClaimsJws(token)
+                                .getBody();
 
             Set<SimpleGrantedAuthority> grantedAuthorities = ((ArrayList<String>) claims.get(AUTHORITY))
                     .stream()

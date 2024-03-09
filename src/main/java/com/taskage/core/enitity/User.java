@@ -1,5 +1,6 @@
 package com.taskage.core.enitity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -7,6 +8,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity(name = "App_User")
 public class User {
     @Id
@@ -24,30 +26,17 @@ public class User {
     private String lastName;
 
     @Column(nullable = false)
-    @Setter(value= AccessLevel.PRIVATE)
+    @JsonIgnore
     private String password;
 
-    @Column(name="auth_role", nullable = false)
+    @Column(name = "auth_role", nullable = false)
     private String authRole;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "job_title_id", referencedColumnName = "id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "job_title_id", referencedColumnName = "id")
     private JobTitle jobTitle;
 
-    public User(String username, String password, String firstName, String lastName, String authRole) {
-        this.username = username;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.authRole = authRole;
-    }
-
-    public User(String username, String password, String firstName, String lastName, String authRole, JobTitle jobTitle) {
-        this.username = username;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.authRole = authRole;
-        this.jobTitle = jobTitle;
-    }
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "team_id")
+    private Team team;
 }
