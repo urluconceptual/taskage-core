@@ -27,21 +27,21 @@ public class TeamService {
 
     public void update(TeamSaveRequestDto teamSaveRequestDto) throws NotFoundException {
         var team = teamRepository.findById(teamSaveRequestDto.id())
-                .orElseThrow(() -> new NotFoundException("Team not found"));
+                                 .orElseThrow(() -> new NotFoundException("Team not found"));
         team.setName(teamSaveRequestDto.name());
         teamRepository.save(team);
         removeAllUsersFromTeam(team.getId());
         userService.assignTeamToAll(teamSaveRequestDto.teamMemberIds(), team);
     }
 
-    public void delete(int teamId) {
-        removeAllUsersFromTeam(teamId);
-        teamRepository.deleteById(teamId);
-    }
-
     public void removeAllUsersFromTeam(int teamId) {
         var team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("Team not found"));
         team.getUsers().forEach(user -> user.setTeam(null));
+    }
+
+    public void delete(int teamId) {
+        removeAllUsersFromTeam(teamId);
+        teamRepository.deleteById(teamId);
     }
 
     public List<TeamResponseDto> getAll() {

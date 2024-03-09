@@ -1,10 +1,8 @@
 package com.taskage.core.service;
 
 import com.taskage.core.config.security.JwtProvider;
-import com.taskage.core.dto.user.UserLoginRequestDto;
-import com.taskage.core.dto.user.UserLoginResponseDto;
-import com.taskage.core.dto.user.UserRegisterRequestDto;
-import com.taskage.core.dto.user.UserResponseDto;
+import com.taskage.core.dto.user.*;
+import com.taskage.core.enitity.JobTitle;
 import com.taskage.core.enitity.Team;
 import com.taskage.core.enitity.User;
 import com.taskage.core.exception.UnauthorizedUserException;
@@ -37,18 +35,18 @@ public class UserService {
         User user = userRepository
                 .findByUsername(userLoginRequestDto.username())
                 .orElseThrow(() -> new NotFoundException("User with username " +
-                        userLoginRequestDto.username() +
-                        " not found"));
+                                                                 userLoginRequestDto.username() +
+                                                                 " not found"));
 
         if (!passwordEncoder.matches(userLoginRequestDto.password(), user.getPassword())) {
             throw new UnauthorizedUserException();
         }
 
         return new UserLoginResponseDto(user.getUsername(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getAuthRole(),
-                jwtProvider.generateToken(user.getUsername(), TTL, user.getAuthRole()));
+                                        user.getFirstName(),
+                                        user.getLastName(),
+                                        user.getAuthRole(),
+                                        jwtProvider.generateToken(user.getUsername(), TTL, user.getAuthRole()));
     }
 
     public void create(UserRegisterRequestDto userRegisterRequestDto) throws UsernameConflictException {
@@ -58,24 +56,57 @@ public class UserService {
 
         final String encodedPassword = passwordEncoder.encode(userRegisterRequestDto.password());
 
-        User newUser = userMapper.mapUserRegisterDtoToUser(userRegisterRequestDto, encodedPassword);
-
-        if(userRegisterRequestDto.jobTitle().getId() != null) {
-            newUser.setJobTitle(jobTitleRepository.getById(userRegisterRequestDto.jobTitle().getId()));
-        } else {
-            jobTitleRepository.save(userRegisterRequestDto.jobTitle());
-            newUser.setJobTitle(userRegisterRequestDto.jobTitle());
-        }
-
-        if (userRegisterRequestDto.teamId() != null) {
-            if (!teamRepository.existsById(userRegisterRequestDto.teamId())) {
-                throw new NotFoundException("Team with id " + userRegisterRequestDto.teamId() +
-                        " not found");
-            }
-            newUser.setTeam(new Team(userRegisterRequestDto.teamId()));
-        }
+        User newUser = userMapper.mapUserCreateEditDtoToUser(userRegisterRequestDto, encodedPassword);
 
         userRepository.save(newUser);
+
+        assignJobTitleToUser(newUser.getId(), userRegisterRequestDto.jobTitle());
+
+        if (userRegisterRequestDto.teamId() != null) {
+            assignTeamToUser(newUser.getId(), userRegisterRequestDto.teamId());
+        }
+    }
+
+    public void assignJobTitleToUser(Integer userId, JobTitle jobTitle) {
+        User user = userRepository.findById(userId)
+                                  .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+        if (jobTitle.getId() != null) {
+            user.setJobTitle(jobTitleRepository.getById(jobTitle.getId()));
+        } else {
+            jobTitleRepository.save(jobTitle);
+            user.setJobTitle(jobTitle);
+        }
+        userRepository.save(user);
+    }
+
+    public void assignTeamToUser(Integer userId, Integer teamId) {
+        User user = userRepository.findById(userId)
+                                  .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+        Team team = teamRepository.findById(teamId)
+                                  .orElseThrow(() -> new NotFoundException("Team with id " + teamId + " not found"));
+        user.setTeam(team);
+        userRepository.save(user);
+    }
+
+    public void update(UserUpdateRequestDto userUpdateRequestDto) {
+        User user = userRepository.findById(userUpdateRequestDto.id())
+                                  .orElseThrow(() -> new NotFoundException("User with id " + userUpdateRequestDto.id() + " not found"));
+
+        user.setUsername(userUpdateRequestDto.username());
+        user.setFirstName(userUpdateRequestDto.firstName());
+        user.setLastName(userUpdateRequestDto.lastName());
+        user.setAuthRole(userUpdateRequestDto.authRole());
+        if (userUpdateRequestDto.password() != null) {
+            user.setPassword(passwordEncoder.encode(userUpdateRequestDto.password()));
+        }
+
+        userRepository.save(user);
+
+        if (userUpdateRequestDto.teamId() != null) {
+            assignTeamToUser(user.getId(), userUpdateRequestDto.teamId());
+        }
+
+        assignJobTitleToUser(user.getId(), userUpdateRequestDto.jobTitle());
     }
 
     public void assignTeamToAll(List<Integer> userIds, Team newTeam) {
@@ -91,6 +122,10 @@ public class UserService {
 
     public UserResponseDto get(Integer id) {
         return userRepository.findById(id).map(userMapper::mapUserToUserResponseDto)
-                .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
+                             .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
+    }
+
+    public void delete(Integer userId) {
+        userRepository.deleteById(userId);
     }
 }

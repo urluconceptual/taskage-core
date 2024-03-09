@@ -35,6 +35,30 @@ public class SecurityConfig {
     }
 
     @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .authorizeHttpRequests(requests -> requests
+                    .requestMatchers("/users/login").permitAll()
+                    .requestMatchers("/users/register").hasRole(ADMIN)
+                    .requestMatchers("/users/checkLocalCredentials").hasAnyRole(ADMIN, BASIC, MANAGER)
+                    .requestMatchers("/users/delete/**").hasAnyRole(ADMIN)
+                    .requestMatchers("users/update").hasAnyRole(ADMIN)
+                    .requestMatchers("/users/getAll").hasAnyRole(ADMIN, BASIC, MANAGER)
+                    .requestMatchers("/teams/create").hasAnyRole(ADMIN)
+                    .requestMatchers("/teams/getAll").hasAnyRole(ADMIN, BASIC, MANAGER)
+                    .requestMatchers("/teams/update").hasAnyRole(ADMIN)
+                    .requestMatchers("/teams/delete/**").hasAnyRole(ADMIN)
+                    .requestMatchers("/jobTitles/getAll").hasAnyRole(ADMIN))
+            .sessionManagement(session -> session
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtAuthorizationFilter,
+                             org.springframework.security.web.access.intercept.AuthorizationFilter.class);
+
+        return http.build();
+    }
+
+    @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
@@ -43,27 +67,5 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
-    }
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/users/login").permitAll()
-                        .requestMatchers("/users/register").hasRole(ADMIN)
-                        .requestMatchers("/users/checkLocalCredentials").hasAnyRole(ADMIN, BASIC, MANAGER)
-                        .requestMatchers("/users/getAll").hasAnyRole(ADMIN, BASIC, MANAGER)
-                        .requestMatchers("/teams/create").hasAnyRole(ADMIN)
-                        .requestMatchers("/teams/getAll").hasAnyRole(ADMIN, BASIC, MANAGER)
-                        .requestMatchers("/teams/update").hasAnyRole(ADMIN)
-                        .requestMatchers("/teams/delete/**").hasAnyRole(ADMIN)
-                        .requestMatchers("/jobTitles/getAll").hasAnyRole(ADMIN))
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthorizationFilter,
-                        org.springframework.security.web.access.intercept.AuthorizationFilter.class);
-
-        return http.build();
     }
 }

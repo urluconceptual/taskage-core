@@ -26,7 +26,6 @@ public class User {
     private String lastName;
 
     @Column(nullable = false)
-    @Setter(value = AccessLevel.PRIVATE)
     @JsonIgnore
     private String password;
 
@@ -34,7 +33,7 @@ public class User {
     private String authRole;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "job_title_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "job_title_id", referencedColumnName = "id")
     private JobTitle jobTitle;
 
     @ManyToOne(fetch = FetchType.EAGER)
