@@ -16,7 +16,7 @@ import java.util.List;
 public class TeamService {
     private final UserService userService;
     private final TeamRepository teamRepository;
-    private TeamMapper teamMapper;
+    private final TeamMapper teamMapper;
 
     public void create(TeamSaveRequestDto teamSaveRequestDto) throws NotFoundException {
         Team newTeam = teamMapper.mapTeamSaveRequestDtoToTeam(teamSaveRequestDto);

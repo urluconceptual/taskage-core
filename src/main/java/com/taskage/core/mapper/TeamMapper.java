@@ -10,9 +10,7 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 public class TeamMapper {
     public Team mapTeamSaveRequestDtoToTeam(TeamSaveRequestDto teamSaveRequestDto) {
-        return new Team(
-                teamSaveRequestDto.name()
-        );
+        return Team.builder().name(teamSaveRequestDto.name()).build();
     }
 
     public TeamResponseDto mapTeamToTeamResponseDto(Team team) {

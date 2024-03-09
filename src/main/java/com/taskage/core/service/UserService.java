@@ -28,7 +28,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JobTitleRepository jobTitleRepository;
     private final TeamRepository teamRepository;
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
 
     public UserLoginResponseDto authenticate(UserLoginRequestDto userLoginRequestDto)
             throws NotFoundException, UnauthorizedUserException {
@@ -42,10 +42,7 @@ public class UserService {
             throw new UnauthorizedUserException();
         }
 
-        return new UserLoginResponseDto(user.getUsername(),
-                                        user.getFirstName(),
-                                        user.getLastName(),
-                                        user.getAuthRole(),
+        return new UserLoginResponseDto(userMapper.mapUserToUserResponseDto(user),
                                         jwtProvider.generateToken(user.getUsername(), TTL, user.getAuthRole()));
     }
 

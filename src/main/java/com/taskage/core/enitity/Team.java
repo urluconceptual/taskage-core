@@ -8,7 +8,8 @@ import java.util.Set;
 
 @Getter
 @Setter
-@Entity(name = "Team")
+@Entity
+@Table(name = "teams")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -24,11 +25,6 @@ public class Team {
     @OneToMany(mappedBy = "team", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>();
 
-    public Team(Integer id) {
-        this.id = id;
-    }
-
-    public Team(String name) {
-        this.name = name;
-    }
+    @OneToMany(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Sprint> sprints = new HashSet<>();
 }

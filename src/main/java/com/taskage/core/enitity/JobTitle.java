@@ -10,7 +10,8 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @Builder
-@Entity(name = "Job_Title")
+@Entity
+@Table(name = "job_titles")
 @AllArgsConstructor
 public class JobTitle {
     @Id
