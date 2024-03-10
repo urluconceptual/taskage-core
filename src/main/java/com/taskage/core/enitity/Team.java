@@ -1,5 +1,6 @@
 package com.taskage.core.enitity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,5 +27,6 @@ public class Team {
     private Set<User> users = new HashSet<>();
 
     @OneToMany(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
     private Set<Sprint> sprints = new HashSet<>();
 }

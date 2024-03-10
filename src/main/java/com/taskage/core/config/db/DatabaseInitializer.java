@@ -1,6 +1,7 @@
 package com.taskage.core.config.db;
 
 import com.taskage.core.dto.sprint.SprintCreateRequestDto;
+import com.taskage.core.dto.task.TaskCreateRequestDto;
 import com.taskage.core.dto.team.TeamSaveRequestDto;
 import com.taskage.core.dto.user.UserRegisterRequestDto;
 import com.taskage.core.enitity.JobTitle;
@@ -10,6 +11,7 @@ import com.taskage.core.repository.PriorityRepository;
 import com.taskage.core.repository.StatusRepository;
 import com.taskage.core.repository.UserRepository;
 import com.taskage.core.service.SprintService;
+import com.taskage.core.service.TaskService;
 import com.taskage.core.service.TeamService;
 import com.taskage.core.service.UserService;
 import jakarta.annotation.PostConstruct;
@@ -30,6 +32,7 @@ public class DatabaseInitializer {
     private SprintService sprintService;
     private StatusRepository statusRepository;
     private PriorityRepository priorityRepository;
+    private TaskService taskService;
 
     @PostConstruct
     public void init() {
@@ -102,6 +105,10 @@ public class DatabaseInitializer {
             priorityRepository.save(Priority.builder().name("Low").build());
             priorityRepository.save(Priority.builder().name("Medium").build());
             priorityRepository.save(Priority.builder().name("High").build());
+
+            taskService.create(new TaskCreateRequestDto("Task 1", "Task 1 description", 1, 1, 1, 2));
+            taskService.create(new TaskCreateRequestDto("Task 2", "Task 2 description", 1, 1, 1, 2));
+            taskService.create(new TaskCreateRequestDto("Task 3", "Task 3 description", 1, 1, 1, 2));
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.taskage.core.enitity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,6 +35,12 @@ public class Task {
     private Sprint sprint;
 
     @JoinColumn(name = "assignee_id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private User assignee;
+
+    @JsonProperty("assigneeId")
+    public Integer getAssigneeId() {
+        return assignee.getId();
+    }
 }
