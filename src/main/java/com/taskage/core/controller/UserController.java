@@ -29,23 +29,23 @@ public class UserController {
     }
 
     @PostMapping(path = "/register")
-    public ResponseEntity<UserCrudResponseDto> register(
+    public ResponseEntity<String> register(
             @RequestBody @Valid UserRegisterRequestDto userRegisterRequestDto) {
         userService.create(userRegisterRequestDto);
-        return ResponseEntity.ok(new UserCrudResponseDto("Successfully registered user!"));
+        return ResponseEntity.ok("Successfully registered user!");
     }
 
     @PostMapping(path = "/update")
-    public ResponseEntity<UserCrudResponseDto> update(
+    public ResponseEntity<String> update(
             @RequestBody @Valid UserUpdateRequestDto userUpdateRequestDto) {
         userService.update(userUpdateRequestDto);
-        return ResponseEntity.ok(new UserCrudResponseDto("Successfully updated user!"));
+        return ResponseEntity.ok("Successfully updated user!");
     }
 
     @DeleteMapping(path = "/delete/{userId}")
-    public ResponseEntity<UserCrudResponseDto> delete(@PathVariable Integer userId) {
+    public ResponseEntity<String> delete(@PathVariable Integer userId) {
         userService.delete(userId);
-        return ResponseEntity.ok(new UserCrudResponseDto("Successfully deleted user!"));
+        return ResponseEntity.ok("Successfully deleted user!");
     }
 
     @GetMapping(path = "/getAll")
