@@ -28,6 +28,11 @@ public class UserController {
         return ResponseEntity.ok(userService.authenticate(userLoginRequestDto));
     }
 
+    @GetMapping(path = "/getAllForTeam/{teamId}")
+    public ResponseEntity<List<UserResponseDto>> getAllForTeam(@PathVariable Integer teamId) {
+        return ResponseEntity.ok(userService.getAllForTeam(teamId));
+    }
+
     @PostMapping(path = "/register")
     public ResponseEntity<String> register(
             @RequestBody @Valid UserRegisterRequestDto userRegisterRequestDto) {

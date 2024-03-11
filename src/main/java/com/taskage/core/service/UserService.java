@@ -117,6 +117,10 @@ public class UserService {
         return userRepository.findAll().stream().map(userMapper::mapUserToUserResponseDto).toList();
     }
 
+    public List<UserResponseDto> getAllForTeam(Integer teamId) {
+        return userRepository.findAllByTeamId(teamId).stream().map(userMapper::mapUserToUserResponseDto).toList();
+    }
+
     public UserResponseDto get(Integer id) {
         return userRepository.findById(id).map(userMapper::mapUserToUserResponseDto)
                              .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
