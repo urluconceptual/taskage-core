@@ -29,6 +29,12 @@ public class Task {
     @Column(name = "priority_id")
     private Integer priorityId;
 
+    @Column(name = "estimation")
+    private Integer estimation;
+
+    @Column(name = "progress")
+    private Integer progress;
+
     @JoinColumn(name = "sprint_id")
     @ManyToOne
     @JsonIgnore

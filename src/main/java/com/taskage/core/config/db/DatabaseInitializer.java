@@ -106,9 +106,9 @@ public class DatabaseInitializer {
             priorityRepository.save(Priority.builder().name("Medium").build());
             priorityRepository.save(Priority.builder().name("High").build());
 
-            taskService.create(new TaskCreateRequestDto("Task 1", "Task 1 description", 1, 1, 1, 2));
-            taskService.create(new TaskCreateRequestDto("Task 2", "Task 2 description", 1, 1, 1, 2));
-            taskService.create(new TaskCreateRequestDto("Task 3", "Task 3 description", 1, 1, 1, 2));
+            taskService.create(new TaskCreateRequestDto("Task 1", "Task 1 description", 1, 1, 8, 1, 2));
+            taskService.create(new TaskCreateRequestDto("Task 2", "Task 2 description", 1, 1, 7, 1, 2));
+            taskService.create(new TaskCreateRequestDto("Task 3", "Task 3 description", 1, 1, 10, 1, 2));
         }
     }
 }
