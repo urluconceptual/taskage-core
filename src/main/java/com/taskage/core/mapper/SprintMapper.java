@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 public class SprintMapper {
     public Sprint mapSprintCreateRequestDtoToSprint(SprintCreateRequestDto sprintCreateRequestDto) {
-        return Sprint.builder().startDate(sprintCreateRequestDto.startDate()).endDate(sprintCreateRequestDto.endDate()).build();
+        return Sprint.builder().startDate(sprintCreateRequestDto.startDate()).endDate(sprintCreateRequestDto.endDate())
+                .build();
     }
 }

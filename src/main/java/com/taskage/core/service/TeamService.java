@@ -27,7 +27,7 @@ public class TeamService {
 
     public void update(TeamSaveRequestDto teamSaveRequestDto) throws NotFoundException {
         var team = teamRepository.findById(teamSaveRequestDto.id())
-                                 .orElseThrow(() -> new NotFoundException("Team not found"));
+                .orElseThrow(() -> new NotFoundException("Team not found"));
         team.setName(teamSaveRequestDto.name());
         teamRepository.save(team);
         removeAllUsersFromTeam(team.getId());

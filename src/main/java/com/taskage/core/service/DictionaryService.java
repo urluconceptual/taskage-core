@@ -18,13 +18,13 @@ public class DictionaryService {
 
     public Map<Integer, String> getStatuses() {
         return statusRepository.findAll()
-                               .stream()
-                               .collect(Collectors.toMap(Status::getId, Status::getName));
+                .stream()
+                .collect(Collectors.toMap(Status::getId, Status::getName));
     }
 
     public Map<Integer, String> getPriorities() {
         return priorityRepository.findAll()
-                                 .stream()
-                                 .collect(Collectors.toMap(Priority::getId, Priority::getName));
+                .stream()
+                .collect(Collectors.toMap(Priority::getId, Priority::getName));
     }
 }

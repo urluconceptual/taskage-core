@@ -35,15 +35,15 @@ public class UserService {
         User user = userRepository
                 .findByUsername(userLoginRequestDto.username())
                 .orElseThrow(() -> new NotFoundException("User with username " +
-                                                                 userLoginRequestDto.username() +
-                                                                 " not found"));
+                        userLoginRequestDto.username() +
+                        " not found"));
 
         if (!passwordEncoder.matches(userLoginRequestDto.password(), user.getPassword())) {
             throw new UnauthorizedUserException();
         }
 
         return new UserLoginResponseDto(userMapper.mapUserToUserResponseDto(user),
-                                        jwtProvider.generateToken(user.getUsername(), TTL, user.getAuthRole()));
+                jwtProvider.generateToken(user.getUsername(), TTL, user.getAuthRole()));
     }
 
     public void create(UserRegisterRequestDto userRegisterRequestDto) throws UsernameConflictException {
@@ -66,7 +66,7 @@ public class UserService {
 
     public void assignJobTitleToUser(Integer userId, JobTitle jobTitle) {
         User user = userRepository.findById(userId)
-                                  .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
         if (jobTitle.getId() != null) {
             user.setJobTitle(jobTitleRepository.getById(jobTitle.getId()));
         } else {
@@ -78,16 +78,16 @@ public class UserService {
 
     public void assignTeamToUser(Integer userId, Integer teamId) {
         User user = userRepository.findById(userId)
-                                  .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
         Team team = teamRepository.findById(teamId)
-                                  .orElseThrow(() -> new NotFoundException("Team with id " + teamId + " not found"));
+                .orElseThrow(() -> new NotFoundException("Team with id " + teamId + " not found"));
         user.setTeam(team);
         userRepository.save(user);
     }
 
     public void update(UserUpdateRequestDto userUpdateRequestDto) {
         User user = userRepository.findById(userUpdateRequestDto.id())
-                                  .orElseThrow(() -> new NotFoundException("User with id " + userUpdateRequestDto.id() + " not found"));
+                .orElseThrow(() -> new NotFoundException("User with id " + userUpdateRequestDto.id() + " not found"));
 
         user.setUsername(userUpdateRequestDto.username());
         user.setFirstName(userUpdateRequestDto.firstName());
@@ -123,7 +123,7 @@ public class UserService {
 
     public UserResponseDto get(Integer id) {
         return userRepository.findById(id).map(userMapper::mapUserToUserResponseDto)
-                             .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
+                .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
     }
 
     public void delete(Integer userId) {

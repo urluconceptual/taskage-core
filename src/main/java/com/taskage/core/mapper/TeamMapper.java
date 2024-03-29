@@ -18,7 +18,7 @@ public class TeamMapper {
                 team.getId(),
                 team.getName(),
                 team.getUsers().stream().filter(user -> user.getAuthRole().equals("ROLE_MANAGER")).findFirst().get()
-                    .getId()
+                        .getId()
         );
     }
 }

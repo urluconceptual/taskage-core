@@ -26,7 +26,8 @@ public class TaskService {
     }
 
     public void addToSprint(Task task, Integer sprintId) {
-        task.setSprint(sprintRepository.findById(sprintId).orElseThrow(() -> new RuntimeException("Sprint not found.")));
+        task.setSprint(
+                sprintRepository.findById(sprintId).orElseThrow(() -> new RuntimeException("Sprint not found.")));
         taskRepository.save(task);
     }
 
@@ -36,7 +37,8 @@ public class TaskService {
     }
 
     public void update(TaskUpdateRequestDto taskUpdateRequestDto) {
-        Task task = taskRepository.findById(taskUpdateRequestDto.id()).orElseThrow(() -> new RuntimeException("Task not found."));
+        Task task = taskRepository.findById(taskUpdateRequestDto.id())
+                .orElseThrow(() -> new RuntimeException("Task not found."));
         task.setName(taskUpdateRequestDto.name());
         task.setDescription(taskUpdateRequestDto.description());
         task.setStatusId(taskUpdateRequestDto.statusId());

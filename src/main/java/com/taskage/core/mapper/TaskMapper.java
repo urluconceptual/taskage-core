@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component;
 public class TaskMapper {
     public Task mapTaskCreateRequestDtoToTask(TaskCreateRequestDto taskCreateRequestDto) {
         return Task.builder()
-                   .name(taskCreateRequestDto.name())
-                   .description(taskCreateRequestDto.description())
-                   .statusId(taskCreateRequestDto.statusId())
-                   .estimation(taskCreateRequestDto.estimation())
-                   .progress(0)
-                   .priorityId(taskCreateRequestDto.priorityId())
-                   .build();
+                .name(taskCreateRequestDto.name())
+                .description(taskCreateRequestDto.description())
+                .statusId(taskCreateRequestDto.statusId())
+                .estimation(taskCreateRequestDto.estimation())
+                .progress(0)
+                .priorityId(taskCreateRequestDto.priorityId())
+                .build();
     }
 }
