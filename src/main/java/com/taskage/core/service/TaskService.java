@@ -39,7 +39,7 @@ public class TaskService {
     public void update(TaskUpdateRequestDto taskUpdateRequestDto) {
         Task task = taskRepository.findById(taskUpdateRequestDto.id())
                 .orElseThrow(() -> new RuntimeException("Task not found."));
-        task.setName(taskUpdateRequestDto.name());
+        task.setTitle(taskUpdateRequestDto.name());
         task.setDescription(taskUpdateRequestDto.description());
         task.setStatusId(taskUpdateRequestDto.statusId());
         task.setPriorityId(taskUpdateRequestDto.priorityId());
