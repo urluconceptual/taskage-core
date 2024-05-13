@@ -49,4 +49,9 @@ public class Task {
     public Integer getAssigneeId() {
         return assignee.getId();
     }
+
+    @JsonProperty("sprintId")
+    public Integer getSprintId() {
+        return sprint.getId();
+    }
 }
