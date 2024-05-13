@@ -27,14 +27,14 @@ public class SprintService {
         Sprint newSprint = sprintMapper.mapSprintCreateRequestDtoToSprint(sprintCreateRequestDto);
 
         newSprint.setTeam(teamRepository.findById(sprintCreateRequestDto.teamId())
-                                        .orElseThrow(() -> new NotFoundException("Team " + sprintCreateRequestDto.teamId() + " not found")));
+                .orElseThrow(() -> new NotFoundException("Team " + sprintCreateRequestDto.teamId() + " not found")));
 
         sprintRepository.save(newSprint);
     }
 
     public void update(SprintUpdateRequestDto sprintUpdateRequestDto) {
         Sprint sprint = sprintRepository.findById(sprintUpdateRequestDto.id())
-                                        .orElseThrow(() -> new NotFoundException("Sprint " + sprintUpdateRequestDto.id() + " not found."));
+                .orElseThrow(() -> new NotFoundException("Sprint " + sprintUpdateRequestDto.id() + " not found."));
 
         sprint.setStartDate(sprintUpdateRequestDto.startDate());
         sprint.setEndDate(sprintUpdateRequestDto.endDate());

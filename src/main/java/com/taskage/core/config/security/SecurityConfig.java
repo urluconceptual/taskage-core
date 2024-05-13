@@ -37,25 +37,27 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .authorizeHttpRequests(requests -> requests
-                    .requestMatchers("/users/login").permitAll()
-                    .requestMatchers("/users/register").hasRole(ADMIN)
-                    .requestMatchers("/users/checkLocalCredentials").hasAnyRole(ADMIN, BASIC, MANAGER)
-                    .requestMatchers("/users/delete/**").hasAnyRole(ADMIN)
-                    .requestMatchers("users/update").hasAnyRole(ADMIN)
-                    .requestMatchers("/users/getAll").hasAnyRole(ADMIN, BASIC, MANAGER)
-                    .requestMatchers("/teams/create").hasAnyRole(ADMIN)
-                    .requestMatchers("/teams/getAll").hasAnyRole(ADMIN, BASIC, MANAGER)
-                    .requestMatchers("/teams/update").hasAnyRole(ADMIN)
-                    .requestMatchers("/teams/delete/**").hasAnyRole(ADMIN)
-                    .requestMatchers("/jobTitles/getAll").hasAnyRole(ADMIN)
-                    .requestMatchers("/sprints/**").hasAnyRole(MANAGER)
-                    .requestMatchers("/dictionary/**").hasAnyRole(ADMIN, BASIC, MANAGER))
-            .sessionManagement(session -> session
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtAuthorizationFilter,
-                             org.springframework.security.web.access.intercept.AuthorizationFilter.class);
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(requests -> requests
+                        .requestMatchers("/users/login").permitAll()
+                        .requestMatchers("/users/register").hasRole(ADMIN)
+                        .requestMatchers("/users/checkLocalCredentials").hasAnyRole(ADMIN, BASIC, MANAGER)
+                        .requestMatchers("/users/delete/**").hasAnyRole(ADMIN)
+                        .requestMatchers("users/update").hasAnyRole(ADMIN)
+                        .requestMatchers("/users/getAll").hasAnyRole(ADMIN, BASIC, MANAGER)
+                        .requestMatchers("/users/getAllForTeam/**").hasAnyRole(ADMIN, BASIC, MANAGER)
+                        .requestMatchers("/teams/create").hasAnyRole(ADMIN)
+                        .requestMatchers("/teams/getAll").hasAnyRole(ADMIN, BASIC, MANAGER)
+                        .requestMatchers("/teams/update").hasAnyRole(ADMIN)
+                        .requestMatchers("/teams/delete/**").hasAnyRole(ADMIN)
+                        .requestMatchers("/jobTitles/getAll").hasAnyRole(ADMIN)
+                        .requestMatchers("/sprints/**").hasAnyRole(MANAGER, BASIC)
+                        .requestMatchers("/dictionary/**").hasAnyRole(MANAGER, BASIC)
+                        .requestMatchers("/tasks/**").hasAnyRole(BASIC, MANAGER))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtAuthorizationFilter,
+                        org.springframework.security.web.access.intercept.AuthorizationFilter.class);
 
         return http.build();
     }

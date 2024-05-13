@@ -1,6 +1,7 @@
 package com.taskage.core.enitity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,8 +17,8 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "title")
+    private String title;
 
     @Column(name = "description")
     private String description;
@@ -28,12 +29,24 @@ public class Task {
     @Column(name = "priority_id")
     private Integer priorityId;
 
+    @Column(name = "estimation")
+    private Integer estimation;
+
+    @Column(name = "progress")
+    private Integer progress;
+
     @JoinColumn(name = "sprint_id")
     @ManyToOne
     @JsonIgnore
     private Sprint sprint;
 
     @JoinColumn(name = "assignee_id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private User assignee;
+
+    @JsonProperty("assigneeId")
+    public Integer getAssigneeId() {
+        return assignee.getId();
+    }
 }
