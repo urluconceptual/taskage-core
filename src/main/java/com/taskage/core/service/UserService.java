@@ -90,7 +90,9 @@ public class UserService {
 
     public UserResponseDto update(@NotNull UserUpdateRequestDto userUpdateRequestDto) {
         User user = getUserById(userUpdateRequestDto.id());
-        if (userRepository.existsByUsername(userUpdateRequestDto.username())) {
+        if (!userRepository.getReferenceById(userUpdateRequestDto.id()).getUsername()
+                .equals(userUpdateRequestDto.username()) &&
+                userRepository.existsByUsername(userUpdateRequestDto.username())) {
             throw new UsernameConflictException();
         }
         userMapper.mapUserUpdateDtoToUser(user, userUpdateRequestDto);
