@@ -1,6 +1,7 @@
 package com.taskage.core.config.security;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -29,6 +30,9 @@ public class SecurityConfig {
     public static final String MANAGER = "MANAGER";
 
     private final AuthorizationFilter jwtAuthorizationFilter;
+
+    @Value("${cors.allowedOrigins}")
+    private String ALLOWED_ORIGIN;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -75,7 +79,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedOrigins(List.of(ALLOWED_ORIGIN));
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "Upgrade",
                 "Connection", "Origin", "Sec-WebSocket-Version", "Sec-WebSocket-Extensions", "Sec-WebSocket-Key"));

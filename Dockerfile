@@ -1,7 +1,5 @@
-# Use an OpenJDK 21 image to build the app
 FROM openjdk:21-slim AS build
 
-# Install Maven
 ARG MAVEN_VERSION=3.8.4
 ARG USER_HOME_DIR="/root"
 ARG BASE_URL=https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries
@@ -21,13 +19,10 @@ WORKDIR /app
 COPY . .
 RUN mvn clean install -DskipTests
 
-# Use the official OpenJDK 21 image to run the app
 FROM openjdk:21
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose port 8080
-EXPOSE 8081
+EXPOSE 8080
 
-# Entry point to run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
