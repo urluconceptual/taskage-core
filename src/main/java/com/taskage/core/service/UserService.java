@@ -5,128 +5,164 @@ import com.taskage.core.dto.user.*;
 import com.taskage.core.enitity.JobTitle;
 import com.taskage.core.enitity.Team;
 import com.taskage.core.enitity.User;
-import com.taskage.core.exception.UnauthorizedUserException;
 import com.taskage.core.exception.conflict.UsernameConflictException;
 import com.taskage.core.exception.notFound.NotFoundException;
+import com.taskage.core.exception.security.AuthenticationFailedException;
+import com.taskage.core.exception.security.UnauthorizedUserException;
 import com.taskage.core.mapper.UserMapper;
 import com.taskage.core.repository.JobTitleRepository;
 import com.taskage.core.repository.TeamRepository;
 import com.taskage.core.repository.UserRepository;
-import lombok.AllArgsConstructor;
+import com.taskage.core.utils.UserActivityLogger;
+import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserService {
-    private final Long TTL = 8L;
-
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
     private final JobTitleRepository jobTitleRepository;
     private final TeamRepository teamRepository;
     private final UserMapper userMapper;
+    private final UserActivityLogger userActivityLogger;
+    @Value("${jwt.ttl}")
+    private Long timeToLive;
 
-    public UserLoginResponseDto authenticate(UserLoginRequestDto userLoginRequestDto)
-            throws NotFoundException, UnauthorizedUserException {
-        User user = userRepository
-                .findByUsername(userLoginRequestDto.username())
-                .orElseThrow(() -> new NotFoundException("User with username " +
-                        userLoginRequestDto.username() +
-                        " not found"));
-
-        if (!passwordEncoder.matches(userLoginRequestDto.password(), user.getPassword())) {
-            throw new UnauthorizedUserException();
-        }
-
-        return new UserLoginResponseDto(userMapper.mapUserToUserResponseDto(user),
-                jwtProvider.generateToken(user.getUsername(), TTL, user.getAuthRole()));
-    }
-
-    public void create(UserRegisterRequestDto userRegisterRequestDto) throws UsernameConflictException {
-        userRepository.findByUsername(userRegisterRequestDto.username()).ifPresent(username -> {
-            throw new UsernameConflictException();
-        });
-
-        final String encodedPassword = passwordEncoder.encode(userRegisterRequestDto.password());
-
-        User newUser = userMapper.mapUserCreateEditDtoToUser(userRegisterRequestDto, encodedPassword);
-
-        userRepository.save(newUser);
-
-        assignJobTitleToUser(newUser.getId(), userRegisterRequestDto.jobTitle());
-
-        if (userRegisterRequestDto.teamId() != null) {
-            assignTeamToUser(newUser.getId(), userRegisterRequestDto.teamId());
-        }
-    }
-
-    public void assignJobTitleToUser(Integer userId, JobTitle jobTitle) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
-        if (jobTitle.getId() != null) {
-            user.setJobTitle(jobTitleRepository.getById(jobTitle.getId()));
-        } else {
-            jobTitleRepository.save(jobTitle);
-            user.setJobTitle(jobTitle);
-        }
-        userRepository.save(user);
-    }
-
-    public void assignTeamToUser(Integer userId, Integer teamId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
-        Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new NotFoundException("Team with id " + teamId + " not found"));
-        user.setTeam(team);
-        userRepository.save(user);
-    }
-
-    public void update(UserUpdateRequestDto userUpdateRequestDto) {
-        User user = userRepository.findById(userUpdateRequestDto.id())
-                .orElseThrow(() -> new NotFoundException("User with id " + userUpdateRequestDto.id() + " not found"));
-
-        user.setUsername(userUpdateRequestDto.username());
-        user.setFirstName(userUpdateRequestDto.firstName());
-        user.setLastName(userUpdateRequestDto.lastName());
-        user.setAuthRole(userUpdateRequestDto.authRole());
-        if (userUpdateRequestDto.password() != null) {
-            user.setPassword(passwordEncoder.encode(userUpdateRequestDto.password()));
-        }
-
-        userRepository.save(user);
-
-        if (userUpdateRequestDto.teamId() != null) {
-            assignTeamToUser(user.getId(), userUpdateRequestDto.teamId());
-        }
-
-        assignJobTitleToUser(user.getId(), userUpdateRequestDto.jobTitle());
-    }
-
-    public void assignTeamToAll(List<Integer> userIds, Team newTeam) {
-        userRepository.findAllById(userIds).forEach(user -> {
-            user.setTeam(newTeam);
-            userRepository.save(user);
-        });
-    }
-
+    @NotNull
     public List<UserResponseDto> getAll() {
         return userRepository.findAll().stream().map(userMapper::mapUserToUserResponseDto).toList();
     }
 
-    public List<UserResponseDto> getAllForTeam(Integer teamId) {
+    @NotNull
+    public List<UserResponseDto> getAllForTeam(@NotNull Integer teamId) {
         return userRepository.findAllByTeamId(teamId).stream().map(userMapper::mapUserToUserResponseDto).toList();
     }
 
-    public UserResponseDto get(Integer id) {
+    @NotNull
+    public UserResponseDto get(@NotNull Integer id) {
         return userRepository.findById(id).map(userMapper::mapUserToUserResponseDto)
                 .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
     }
 
-    public void delete(Integer userId) {
+    @NotNull
+    public UserLoginResponseDto authenticate(@NotNull UserLoginRequestDto userLoginRequestDto)
+            throws NotFoundException, UnauthorizedUserException {
+        User user = getUserByUsername(userLoginRequestDto.username());
+
+        if (!passwordEncoder.matches(userLoginRequestDto.password(), user.getPassword())) {
+            userActivityLogger.logUserActivity("Failed login attempt. Incorrect password.", "ERROR");
+            throw new AuthenticationFailedException();
+        }
+
+        userActivityLogger.logUserActivity("Successful login - " + userLoginRequestDto.username(), "INFO");
+        return new UserLoginResponseDto(userMapper.mapUserToUserResponseDto(user),
+                jwtProvider.generateToken(user.getId().toString(), timeToLive, user.getAuthRole()));
+    }
+
+    @Transactional
+    @NotNull
+    public UserResponseDto create(@NotNull UserRegisterRequestDto userRegisterRequestDto)
+            throws UsernameConflictException {
+        if (userRepository.existsByUsername(userRegisterRequestDto.username())) {
+            throw new UsernameConflictException();
+        }
+
+        final String encodedPassword = passwordEncoder.encode(userRegisterRequestDto.password());
+        User newUser = userMapper.mapUserCreateEditDtoToUser(userRegisterRequestDto, encodedPassword);
+
+        userRepository.save(newUser);
+        assignJobTitleToUser(newUser.getId(), userRegisterRequestDto.jobTitle());
+        if (userRegisterRequestDto.teamId() != null) {
+            assignTeamToUser(newUser.getId(), userRegisterRequestDto.teamId());
+        }
+
+        userActivityLogger.logUserActivity("User created with username " + newUser.getUsername(), "INFO");
+        return userMapper.mapUserToUserResponseDto(newUser);
+    }
+
+    @Transactional
+    public UserResponseDto update(@NotNull UserUpdateRequestDto userUpdateRequestDto) {
+        User user = getUserById(userUpdateRequestDto.id());
+        if (userRepository.existsByUsername(userUpdateRequestDto.username())) {
+            throw new UsernameConflictException();
+        }
+
+        userMapper.mapUserUpdateDtoToUser(user, userUpdateRequestDto);
+
+        userRepository.save(user);
+        if (userUpdateRequestDto.teamId() != null) {
+            assignTeamToUser(user.getId(), userUpdateRequestDto.teamId());
+        }
+        assignJobTitleToUser(user.getId(), userUpdateRequestDto.jobTitle());
+
+        userActivityLogger.logUserActivity("User updated with id " + user.getId(), "INFO");
+        return userMapper.mapUserToUserResponseDto(user);
+    }
+
+    @Transactional
+    public void delete(@NotNull Integer userId) {
         userRepository.deleteById(userId);
+        userActivityLogger.logUserActivity("User deleted with id " + userId, "INFO");
+    }
+
+    @Transactional
+    public void assignJobTitleToUser(@NotNull Integer userId, @NotNull JobTitle jobTitle) {
+        User user = getUserById(userId);
+        JobTitle assignedJobTitle;
+        if (jobTitle.getId() == null && jobTitleRepository.findByName(jobTitle.getName()) == null) {
+            assignedJobTitle = jobTitleRepository.save(jobTitle);
+        } else {
+            assignedJobTitle = jobTitle.getId() != null ? jobTitleRepository.getReferenceById(jobTitle.getId()) :
+                    jobTitleRepository.findByName(jobTitle.getName());
+        }
+
+        user.setJobTitle(assignedJobTitle);
+        userRepository.save(user);
+        userActivityLogger.logUserActivity("Assigned job title to user with id " + userId, "INFO");
+    }
+
+    @Transactional
+    public void assignTeamToUser(@NotNull Integer userId, @NotNull Integer teamId) {
+        User user = getUserById(userId);
+        Team team = getTeamById(teamId);
+
+        if (user.getTeam() != null && user.getTeam().getId().equals(team.getId())) {
+            return;
+        }
+        user.setTeam(team);
+        userRepository.save(user);
+        userActivityLogger.logUserActivity("Assigned team to user with id " + user.getId(), "INFO");
+    }
+
+    @Transactional
+    public void assignTeamToAll(@NotNull List<Integer> userIds, @NotNull Team newTeam) {
+        userRepository.findAllById(userIds).forEach(user -> {
+            user.setTeam(newTeam);
+            userRepository.save(user);
+            userActivityLogger.logUserActivity("Assigned team to user with id " + user.getId(), "INFO");
+        });
+    }
+
+    private User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User with username " + username + " not found"));
+    }
+
+    private User getUserById(Integer userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+    }
+
+    private Team getTeamById(Integer teamId) {
+        return teamRepository.findById(teamId)
+                .orElseThrow(() -> new NotFoundException("Team with id " + teamId + " not found"));
     }
 }

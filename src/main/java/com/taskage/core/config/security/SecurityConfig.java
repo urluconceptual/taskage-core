@@ -11,6 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -38,22 +39,31 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .headers(headers ->
+                        headers.xssProtection(
+                                xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
+                        ).contentSecurityPolicy(
+                                cps -> cps.policyDirectives("script-src 'self'")
+                        ))
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/users/login").permitAll()
-                        .requestMatchers("/users/register").hasRole(ADMIN)
-                        .requestMatchers("/users/checkLocalCredentials").hasAnyRole(ADMIN, BASIC, MANAGER)
-                        .requestMatchers("/users/delete/**").hasAnyRole(ADMIN)
-                        .requestMatchers("users/update").hasAnyRole(ADMIN)
-                        .requestMatchers("/users/getAll").hasAnyRole(ADMIN, BASIC, MANAGER)
-                        .requestMatchers("/users/getAllForTeam/**").hasAnyRole(ADMIN, BASIC, MANAGER)
-                        .requestMatchers("/teams/create").hasAnyRole(ADMIN)
-                        .requestMatchers("/teams/getAll").hasAnyRole(ADMIN, BASIC, MANAGER)
-                        .requestMatchers("/teams/update").hasAnyRole(ADMIN)
-                        .requestMatchers("/teams/delete/**").hasAnyRole(ADMIN)
-                        .requestMatchers("/jobTitles/getAll").hasAnyRole(ADMIN)
-                        .requestMatchers("/sprints/**").hasAnyRole(MANAGER, BASIC)
-                        .requestMatchers("/dictionary/**").hasAnyRole(MANAGER, BASIC)
-                        .requestMatchers("/tasks/**").hasAnyRole(BASIC, MANAGER))
+                        .requestMatchers("/core/users/login").permitAll()
+                        .requestMatchers("/core/users/register").hasRole(ADMIN)
+                        .requestMatchers("/core/users/checkLocalCredentials").hasAnyRole(ADMIN, BASIC, MANAGER)
+                        .requestMatchers("/core/users/delete/**").hasAnyRole(ADMIN)
+                        .requestMatchers("/core/users/update").hasAnyRole(ADMIN)
+                        .requestMatchers("/core/users/getAll").hasAnyRole(ADMIN, BASIC, MANAGER)
+                        .requestMatchers("/core/users/getAllForTeam/**").hasAnyRole(ADMIN, BASIC, MANAGER)
+                        .requestMatchers("/core/teams/create").hasAnyRole(ADMIN)
+                        .requestMatchers("/core/teams/getAll").hasAnyRole(ADMIN, BASIC, MANAGER)
+                        .requestMatchers("/core/teams/update").hasAnyRole(ADMIN)
+                        .requestMatchers("/core/teams/delete/**").hasAnyRole(ADMIN)
+                        .requestMatchers("/core/jobTitles/getAll").hasAnyRole(ADMIN)
+                        .requestMatchers("/core/sprints/**").hasAnyRole(MANAGER, BASIC)
+                        .requestMatchers("/core/dictionary/**").hasAnyRole(MANAGER, BASIC)
+                        .requestMatchers("/core/taskTypes/**").hasAnyRole(MANAGER, BASIC)
+                        .requestMatchers("/core/tasks/**").hasAnyRole(BASIC, MANAGER)
+                        .requestMatchers("/core/ws/**").permitAll()
+                        .requestMatchers("core/admin/**").hasRole(ADMIN))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthorizationFilter,
@@ -67,7 +77,10 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
         configuration.setAllowedMethods(List.of("*"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "Upgrade",
+                "Connection", "Origin", "Sec-WebSocket-Version", "Sec-WebSocket-Extensions", "Sec-WebSocket-Key"));
+        configuration.addExposedHeader("Upgrade");
+        configuration.addExposedHeader("Connection");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

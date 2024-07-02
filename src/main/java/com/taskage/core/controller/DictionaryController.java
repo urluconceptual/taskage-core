@@ -11,7 +11,7 @@ import java.util.Map;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/dictionary")
+@RequestMapping("/core/dictionary")
 public class DictionaryController {
     private final DictionaryService dictionaryService;
 

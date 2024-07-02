@@ -1,4 +1,4 @@
-package com.taskage.core.exception;
+package com.taskage.core.exception.security;
 
 public class UnauthorizedUserException extends RuntimeException {
     public UnauthorizedUserException() {

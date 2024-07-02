@@ -1,6 +1,6 @@
 package com.taskage.core.config.security;
 
-import com.taskage.core.exception.UnauthorizedUserException;
+import com.taskage.core.exception.security.UnauthorizedUserException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -29,11 +29,11 @@ public class JwtProvider {
     @Value("${jwt.secret}")
     private String secret;
 
-    public String generateToken(String username, Long ttl, String authority) {
+    public String generateToken(String id, Long ttl, String authority) {
         Date expriationDate = Date.from(ZonedDateTime.now().plusHours(ttl).toInstant());
 
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(id)
                 .claim(AUTHORITY, Set.of(authority))
                 .setExpiration(expriationDate)
                 .signWith(getJwtKey(), SignatureAlgorithm.HS512)

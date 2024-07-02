@@ -1,22 +1,25 @@
 package com.taskage.core.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.taskage.core.config.websocket.UserWebSocketHandler;
 import com.taskage.core.dto.user.*;
 import com.taskage.core.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/users")
-@Slf4j
+@RequestMapping("/core/users")
 public class UserController {
-    private UserService userService;
+    private final UserService userService;
+    private final UserWebSocketHandler webSocketHandler;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @GetMapping(path = "/checkLocalCredentials")
     public ResponseEntity<String> checkLocalCredentials() {
@@ -34,22 +37,28 @@ public class UserController {
     }
 
     @PostMapping(path = "/register")
-    public ResponseEntity<String> register(
-            @RequestBody @Valid UserRegisterRequestDto userRegisterRequestDto) {
-        userService.create(userRegisterRequestDto);
-        return ResponseEntity.ok("Successfully registered user!");
+    public ResponseEntity<UserResponseDto> register(
+            @RequestBody @Valid UserRegisterRequestDto userRegisterRequestDto) throws IOException {
+        UserResponseDto userResponseDto = userService.create(userRegisterRequestDto);
+        webSocketHandler.broadcastMessage(
+                "{\"action\": \"ADD\", \"user\": " + objectMapper.writeValueAsString(userResponseDto) + "}");
+        return ResponseEntity.ok(userResponseDto);
     }
 
     @PostMapping(path = "/update")
-    public ResponseEntity<String> update(
-            @RequestBody @Valid UserUpdateRequestDto userUpdateRequestDto) {
-        userService.update(userUpdateRequestDto);
-        return ResponseEntity.ok("Successfully updated user!");
+    public ResponseEntity<UserResponseDto> update(
+            @RequestBody @Valid UserUpdateRequestDto userUpdateRequestDto) throws IOException {
+        UserResponseDto userResponseDto = userService.update(userUpdateRequestDto);
+        webSocketHandler.broadcastMessage(
+                "{\"action\": \"UPDATE\", \"user\": " + objectMapper.writeValueAsString(userResponseDto) + "}");
+        return ResponseEntity.ok(userResponseDto);
     }
 
     @DeleteMapping(path = "/delete/{userId}")
-    public ResponseEntity<String> delete(@PathVariable Integer userId) {
+    public ResponseEntity<String> delete(@PathVariable Integer userId) throws IOException {
         userService.delete(userId);
+        webSocketHandler.broadcastMessage(
+                "{\"action\": \"DELETE\", \"userId\": " + objectMapper.writeValueAsString(userId) + "}");
         return ResponseEntity.ok("Successfully deleted user!");
     }
 

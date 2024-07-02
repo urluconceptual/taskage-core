@@ -7,6 +7,7 @@ import com.taskage.core.dto.user.UserRegisterRequestDto;
 import com.taskage.core.enitity.JobTitle;
 import com.taskage.core.enitity.Priority;
 import com.taskage.core.enitity.Status;
+import com.taskage.core.enitity.TaskType;
 import com.taskage.core.repository.PriorityRepository;
 import com.taskage.core.repository.StatusRepository;
 import com.taskage.core.repository.UserRepository;
@@ -17,12 +18,14 @@ import com.taskage.core.service.UserService;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 @Configuration
+@Profile("!test")
 @AllArgsConstructor
 public class DatabaseInitializer {
 
@@ -85,8 +88,8 @@ public class DatabaseInitializer {
                             "Harris", "ROLE_BASIC", JobTitle.builder().name("Database Administrator").build()
                             , null));
 
-
-            teamService.create(new TeamSaveRequestDto(null, "Development Team", 2, new ArrayList<>(List.of(2))));
+            teamService.create(
+                    new TeamSaveRequestDto(null, "Development Team", 2, new ArrayList<>(List.of(2, 3, 4, 5))));
             teamService.create(new TeamSaveRequestDto(null, "Data Team", 7, new ArrayList<>(List.of(7))));
 
             Calendar date1 = Calendar.getInstance();
@@ -106,9 +109,27 @@ public class DatabaseInitializer {
             priorityRepository.save(Priority.builder().name("Medium").build());
             priorityRepository.save(Priority.builder().name("High").build());
 
-            taskService.create(new TaskCreateRequestDto("Task 1", "Task 1 description",1, 8, 1, 2));
-            taskService.create(new TaskCreateRequestDto("Task 2", "Task 2 description", 1, 7, 1, 2));
-            taskService.create(new TaskCreateRequestDto("Task 3", "Task 3 description", 1, 10, 1, 2));
+            TaskType taskType1 = TaskType.builder().name("Development").build();
+            TaskType taskType2 = TaskType.builder().name("Design").build();
+            TaskType taskType3 = TaskType.builder().name("Testing").build();
+
+            taskService.create(new TaskCreateRequestDto("Implement login functionality",
+                    "Develop the login functionality including UI and backend API integration.", 1, 8, 2, 2, taskType1,
+                    5));
+            taskService.create(new TaskCreateRequestDto("Fix bug in user profile page",
+                    "Resolve the issue causing incorrect data display in the user profile page.", 2, 7, 2, 3, taskType2,
+                    7));
+            taskService.create(new TaskCreateRequestDto("Code review for recent commits",
+                    "Perform code review for the latest commits in the repository.", 1, 10, 2, 3, taskType3, 2));
+            taskService.create(new TaskCreateRequestDto("Update project documentation",
+                    "Update the project documentation to reflect recent changes and new features.", 1, 8, 2, 4,
+                    taskType1, 5));
+            taskService.create(new TaskCreateRequestDto("Design new dashboard UI",
+                    "Create a new design for the dashboard interface based on the latest user feedback.", 2, 7, 2, 4,
+                    taskType2, 7));
+            taskService.create(
+                    new TaskCreateRequestDto("Clarify requirements", "Talk to stakeholders about requirements.", 1, 10,
+                            2, 5, taskType3, 2));
         }
     }
 }

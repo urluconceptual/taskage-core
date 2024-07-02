@@ -7,6 +7,9 @@ import com.taskage.core.exception.notFound.NotFoundException;
 import com.taskage.core.mapper.SprintMapper;
 import com.taskage.core.repository.SprintRepository;
 import com.taskage.core.repository.TeamRepository;
+import com.taskage.core.utils.UserActivityLogger;
+import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,21 +21,29 @@ public class SprintService {
     private final SprintRepository sprintRepository;
     private final SprintMapper sprintMapper;
     private final TeamRepository teamRepository;
+    private final UserActivityLogger userActivityLogger;
 
-    public List<Sprint> getAllForTeam(Integer teamId) {
+    @NotNull
+    public List<Sprint> getAllForTeam(@NotNull Integer teamId) {
         return sprintRepository.findAllByTeamId(teamId);
     }
 
-    public void create(SprintCreateRequestDto sprintCreateRequestDto) {
+    @NotNull
+    @Transactional
+    public Sprint create(@NotNull SprintCreateRequestDto sprintCreateRequestDto) {
         Sprint newSprint = sprintMapper.mapSprintCreateRequestDtoToSprint(sprintCreateRequestDto);
 
         newSprint.setTeam(teamRepository.findById(sprintCreateRequestDto.teamId())
                 .orElseThrow(() -> new NotFoundException("Team " + sprintCreateRequestDto.teamId() + " not found")));
 
         sprintRepository.save(newSprint);
+        userActivityLogger.logUserActivity("Sprint created with id " + newSprint.getId(), "INFO");
+        return newSprint;
     }
 
-    public void update(SprintUpdateRequestDto sprintUpdateRequestDto) {
+    @NotNull
+    @Transactional
+    public Sprint update(@NotNull SprintUpdateRequestDto sprintUpdateRequestDto) {
         Sprint sprint = sprintRepository.findById(sprintUpdateRequestDto.id())
                 .orElseThrow(() -> new NotFoundException("Sprint " + sprintUpdateRequestDto.id() + " not found."));
 
@@ -40,9 +51,13 @@ public class SprintService {
         sprint.setEndDate(sprintUpdateRequestDto.endDate());
 
         sprintRepository.save(sprint);
+        userActivityLogger.logUserActivity("Sprint updated with id " + sprint.getId(), "INFO");
+        return sprint;
     }
 
-    public void delete(Integer id) {
+    @Transactional
+    public void delete(@NotNull Integer id) {
         sprintRepository.deleteById(id);
+        userActivityLogger.logUserActivity("Sprint deleted with id " + id, "INFO");
     }
 }

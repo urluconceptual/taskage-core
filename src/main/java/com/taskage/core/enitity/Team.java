@@ -23,7 +23,7 @@ public class Team {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "team", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "team", fetch = FetchType.EAGER)
     private Set<User> users = new HashSet<>();
 
     @OneToMany(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

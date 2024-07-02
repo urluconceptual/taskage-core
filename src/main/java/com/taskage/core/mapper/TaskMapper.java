@@ -14,6 +14,7 @@ public class TaskMapper {
                 .description(taskCreateRequestDto.description())
                 .statusId(1)
                 .estimation(taskCreateRequestDto.estimation())
+                .effortPoints(taskCreateRequestDto.effortPoints())
                 .progress(0)
                 .priorityId(taskCreateRequestDto.priorityId())
                 .build();
