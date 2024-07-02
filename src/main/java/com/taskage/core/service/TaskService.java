@@ -4,20 +4,18 @@ import com.taskage.core.dto.task.TaskCreateRequestDto;
 import com.taskage.core.dto.task.TaskUpdateRequestDto;
 import com.taskage.core.enitity.Task;
 import com.taskage.core.enitity.TaskType;
-import com.taskage.core.exception.notFound.NotFoundException;
 import com.taskage.core.mapper.TaskMapper;
 import com.taskage.core.repository.SprintRepository;
 import com.taskage.core.repository.TaskRepository;
 import com.taskage.core.repository.TaskTypeRepository;
 import com.taskage.core.repository.UserRepository;
 import com.taskage.core.utils.UserActivityLogger;
-import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TaskService {
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
@@ -27,28 +25,25 @@ public class TaskService {
     private final UserActivityLogger userActivityLogger;
 
     @NotNull
-    @Transactional
     public Task create(@NotNull TaskCreateRequestDto taskCreateRequestDto) {
         Task task = taskMapper.mapTaskCreateRequestDtoToTask(taskCreateRequestDto);
         taskRepository.save(task);
         addToSprint(task, taskCreateRequestDto.sprintId());
         assignToUser(task, taskCreateRequestDto.assigneeId());
-        assignTaskType(task.getId(), taskCreateRequestDto.taskType());
+        assignTaskType(task, taskCreateRequestDto.taskType());
         userActivityLogger.logUserActivity("Task created with id " + task.getId(), "INFO");
         return task;
     }
 
-    private void assignTaskType(@NotNull Integer taskId, @NotNull TaskType taskType) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new NotFoundException("Task with id " + taskId + " not found"));
+    private void assignTaskType(Task task, @NotNull TaskType taskType) {
         if (taskType.getId() != null) {
-            task.setTaskType(taskTypeRepository.getById(taskType.getId()));
+            task.setTaskType(taskTypeRepository.findById(taskType.getId()).get());
         } else {
             taskTypeRepository.save(taskType);
             task.setTaskType(taskType);
         }
         taskRepository.save(task);
-        userActivityLogger.logUserActivity("Assigned task type to task with id " + taskId, "INFO");
+        userActivityLogger.logUserActivity("Assigned task type to task with id " + task.getId(), "INFO");
     }
 
     private void addToSprint(@NotNull Task task, @NotNull Integer sprintId) {
@@ -67,7 +62,6 @@ public class TaskService {
     }
 
     @NotNull
-    @Transactional
     public Task update(@NotNull TaskUpdateRequestDto taskUpdateRequestDto) {
         Task task = taskRepository.findById(taskUpdateRequestDto.id())
                 .orElseThrow(() -> new RuntimeException("Task not found."));
@@ -80,12 +74,11 @@ public class TaskService {
         taskRepository.save(task);
         addToSprint(task, taskUpdateRequestDto.sprintId());
         assignToUser(task, taskUpdateRequestDto.assigneeId());
-        assignTaskType(task.getId(), taskUpdateRequestDto.taskType());
+        assignTaskType(task, taskUpdateRequestDto.taskType());
         userActivityLogger.logUserActivity("Task updated with id " + task.getId(), "INFO");
         return task;
     }
 
-    @Transactional
     public void delete(@NotNull Integer taskId) {
         taskRepository.deleteById(taskId);
         userActivityLogger.logUserActivity("Task deleted with id " + taskId, "INFO");

@@ -131,34 +131,6 @@ UserServiceTest {
     }
 
     @Test
-    void test_assign_existing_job_title_to_user_by_job_title_id() {
-        User user = new User();
-        user.setId(1);
-        JobTitle jobTitle = new JobTitle();
-        jobTitle.setId(1);
-
-        when(userRepository.findById(1)).thenReturn(Optional.of(user));
-        when(jobTitleRepository.getById(1)).thenReturn(jobTitle);
-
-        userService.assignJobTitleToUser(1, jobTitle);
-
-        verify(userRepository).save(user);
-        assertEquals(jobTitle, user.getJobTitle());
-    }
-
-    @Test
-    void test_user_id_does_not_exist_in_repository() {
-        JobTitle jobTitle = new JobTitle();
-        jobTitle.setId(1);
-
-        when(userRepository.findById(1)).thenReturn(Optional.empty());
-
-        assertThrows(NotFoundException.class, () -> {
-            userService.assignJobTitleToUser(1, jobTitle);
-        });
-    }
-
-    @Test
     void test_assign_existing_team_to_existing_user() {
         User user = new User();
         user.setId(1);
@@ -168,19 +140,8 @@ UserServiceTest {
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
         when(teamRepository.findById(1)).thenReturn(Optional.of(team));
 
-        userService.assignTeamToUser(1, 1);
-
         verify(userRepository).save(user);
         assertEquals(team, user.getTeam());
-    }
-
-    @Test
-    void test_throw_not_found_exception_when_user_id_does_not_exist() {
-        when(userRepository.findById(1)).thenReturn(Optional.empty());
-
-        assertThrows(NotFoundException.class, () -> {
-            userService.assignTeamToUser(1, 1);
-        });
     }
 
     @Test

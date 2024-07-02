@@ -14,7 +14,6 @@ import com.taskage.core.repository.JobTitleRepository;
 import com.taskage.core.repository.TeamRepository;
 import com.taskage.core.repository.UserRepository;
 import com.taskage.core.utils.UserActivityLogger;
-import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -67,7 +66,6 @@ public class UserService {
                 jwtProvider.generateToken(user.getId().toString(), timeToLive, user.getAuthRole()));
     }
 
-    @Transactional
     @NotNull
     public UserResponseDto create(@NotNull UserRegisterRequestDto userRegisterRequestDto)
             throws UsernameConflictException {
@@ -79,61 +77,56 @@ public class UserService {
         User newUser = userMapper.mapUserCreateEditDtoToUser(userRegisterRequestDto, encodedPassword);
 
         userRepository.save(newUser);
-        assignJobTitleToUser(newUser.getId(), userRegisterRequestDto.jobTitle());
+        assignJobTitleToUser(newUser, userRegisterRequestDto.jobTitle());
+
         if (userRegisterRequestDto.teamId() != null) {
-            assignTeamToUser(newUser.getId(), userRegisterRequestDto.teamId());
+            Team team = teamRepository.getById(userRegisterRequestDto.teamId());
+            assignTeamToUser(newUser, team);
         }
 
         userActivityLogger.logUserActivity("User created with username " + newUser.getUsername(), "INFO");
         return userMapper.mapUserToUserResponseDto(newUser);
     }
 
-    @Transactional
     public UserResponseDto update(@NotNull UserUpdateRequestDto userUpdateRequestDto) {
         User user = getUserById(userUpdateRequestDto.id());
         if (userRepository.existsByUsername(userUpdateRequestDto.username())) {
             throw new UsernameConflictException();
         }
-
         userMapper.mapUserUpdateDtoToUser(user, userUpdateRequestDto);
-
         userRepository.save(user);
+
         if (userUpdateRequestDto.teamId() != null) {
-            assignTeamToUser(user.getId(), userUpdateRequestDto.teamId());
+            Team team = teamRepository.getById(userUpdateRequestDto.teamId());
+            assignTeamToUser(user, team);
         }
-        assignJobTitleToUser(user.getId(), userUpdateRequestDto.jobTitle());
+
+        assignJobTitleToUser(user, userUpdateRequestDto.jobTitle());
 
         userActivityLogger.logUserActivity("User updated with id " + user.getId(), "INFO");
         return userMapper.mapUserToUserResponseDto(user);
     }
 
-    @Transactional
     public void delete(@NotNull Integer userId) {
         userRepository.deleteById(userId);
         userActivityLogger.logUserActivity("User deleted with id " + userId, "INFO");
     }
 
-    @Transactional
-    public void assignJobTitleToUser(@NotNull Integer userId, @NotNull JobTitle jobTitle) {
-        User user = getUserById(userId);
+    public void assignJobTitleToUser(@NotNull User user, @NotNull JobTitle jobTitle) {
         JobTitle assignedJobTitle;
         if (jobTitle.getId() == null && jobTitleRepository.findByName(jobTitle.getName()) == null) {
             assignedJobTitle = jobTitleRepository.save(jobTitle);
         } else {
-            assignedJobTitle = jobTitle.getId() != null ? jobTitleRepository.getReferenceById(jobTitle.getId()) :
+            assignedJobTitle = jobTitle.getId() != null ? jobTitleRepository.findById(jobTitle.getId()).get() :
                     jobTitleRepository.findByName(jobTitle.getName());
         }
 
         user.setJobTitle(assignedJobTitle);
         userRepository.save(user);
-        userActivityLogger.logUserActivity("Assigned job title to user with id " + userId, "INFO");
+        userActivityLogger.logUserActivity("Assigned job title to user with id " + user.getId(), "INFO");
     }
 
-    @Transactional
-    public void assignTeamToUser(@NotNull Integer userId, @NotNull Integer teamId) {
-        User user = getUserById(userId);
-        Team team = getTeamById(teamId);
-
+    public void assignTeamToUser(@NotNull User user, @NotNull Team team) {
         if (user.getTeam() != null && user.getTeam().getId().equals(team.getId())) {
             return;
         }
@@ -142,7 +135,6 @@ public class UserService {
         userActivityLogger.logUserActivity("Assigned team to user with id " + user.getId(), "INFO");
     }
 
-    @Transactional
     public void assignTeamToAll(@NotNull List<Integer> userIds, @NotNull Team newTeam) {
         userRepository.findAllById(userIds).forEach(user -> {
             user.setTeam(newTeam);
@@ -159,10 +151,5 @@ public class UserService {
     private User getUserById(Integer userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
-    }
-
-    private Team getTeamById(Integer teamId) {
-        return teamRepository.findById(teamId)
-                .orElseThrow(() -> new NotFoundException("Team with id " + teamId + " not found"));
     }
 }

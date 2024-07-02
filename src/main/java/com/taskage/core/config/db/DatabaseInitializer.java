@@ -97,6 +97,8 @@ public class DatabaseInitializer {
             Calendar date2 = Calendar.getInstance();
             date2.set(2024, Calendar.APRIL, 20);
             Calendar date3 = Calendar.getInstance();
+            date2.set(2024, Calendar.APRIL, 21);
+            Calendar date4 = Calendar.getInstance();
             date3.set(2024, Calendar.APRIL, 30);
             sprintService.create(new SprintCreateRequestDto(1, date1, date2));
             sprintService.create(new SprintCreateRequestDto(1, date2, date3));

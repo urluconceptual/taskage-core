@@ -8,7 +8,6 @@ import com.taskage.core.mapper.SprintMapper;
 import com.taskage.core.repository.SprintRepository;
 import com.taskage.core.repository.TeamRepository;
 import com.taskage.core.utils.UserActivityLogger;
-import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,6 @@ public class SprintService {
     }
 
     @NotNull
-    @Transactional
     public Sprint create(@NotNull SprintCreateRequestDto sprintCreateRequestDto) {
         Sprint newSprint = sprintMapper.mapSprintCreateRequestDtoToSprint(sprintCreateRequestDto);
 
@@ -42,7 +40,6 @@ public class SprintService {
     }
 
     @NotNull
-    @Transactional
     public Sprint update(@NotNull SprintUpdateRequestDto sprintUpdateRequestDto) {
         Sprint sprint = sprintRepository.findById(sprintUpdateRequestDto.id())
                 .orElseThrow(() -> new NotFoundException("Sprint " + sprintUpdateRequestDto.id() + " not found."));
@@ -55,7 +52,6 @@ public class SprintService {
         return sprint;
     }
 
-    @Transactional
     public void delete(@NotNull Integer id) {
         sprintRepository.deleteById(id);
         userActivityLogger.logUserActivity("Sprint deleted with id " + id, "INFO");

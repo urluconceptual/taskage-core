@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taskage.core.config.websocket.TeamWebSocketHandler;
 import com.taskage.core.dto.team.TeamResponseDto;
 import com.taskage.core.dto.team.TeamSaveRequestDto;
-import com.taskage.core.enitity.Team;
 import com.taskage.core.service.TeamService;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +22,10 @@ public class TeamController {
     private final TeamWebSocketHandler webSocketHandler;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Transactional
     @PostMapping(path = "/create")
     @NotNull
     public ResponseEntity<String> create(@RequestBody @Valid TeamSaveRequestDto teamSaveRequestDto) throws IOException {
-        Team savedTeam = teamService.create(teamSaveRequestDto);
+        TeamResponseDto savedTeam = teamService.create(teamSaveRequestDto);
         webSocketHandler.broadcastMessage(
                 "{\"action\": \"ADD\", \"team\": " + objectMapper.writeValueAsString(savedTeam) + "}");
         return ResponseEntity.ok("Successfully created team!");
@@ -36,7 +33,7 @@ public class TeamController {
 
     @PutMapping(path = "/update")
     public ResponseEntity<String> update(@RequestBody @Valid TeamSaveRequestDto teamSaveRequestDto) throws IOException {
-        Team updatedTeam = teamService.update(teamSaveRequestDto);
+        TeamResponseDto updatedTeam = teamService.update(teamSaveRequestDto);
         webSocketHandler.broadcastMessage(
                 "{\"action\": \"UPDATE\", \"team\": " + objectMapper.writeValueAsString(updatedTeam) + "}");
         return ResponseEntity.ok("Successfully updated team!");

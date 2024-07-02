@@ -15,11 +15,18 @@ public class TeamMapper {
 
     public TeamResponseDto mapTeamToTeamResponseDto(Team team) {
         return new TeamResponseDto(
-
                 team.getId(),
                 team.getName(),
                 team.getUsers().stream().filter(user -> user.getAuthRole().equals("ROLE_MANAGER")).findFirst().get()
                         .getId()
+        );
+    }
+
+    public TeamResponseDto mapTeamSaveRequestDtoToTeamResponseDto(Integer id, TeamSaveRequestDto teamSaveRequestDto) {
+        return new TeamResponseDto(
+                id,
+                teamSaveRequestDto.name(),
+                teamSaveRequestDto.teamLeadId()
         );
     }
 }

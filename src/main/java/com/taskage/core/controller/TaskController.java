@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taskage.core.config.websocket.TaskWebSocketHandler;
 import com.taskage.core.dto.task.TaskCreateRequestDto;
 import com.taskage.core.dto.task.TaskUpdateRequestDto;
+import com.taskage.core.enitity.Task;
 import com.taskage.core.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -23,18 +24,18 @@ public class TaskController {
     @PostMapping(path = "/create")
     public ResponseEntity<String> create(@RequestBody @Valid TaskCreateRequestDto taskCreateRequestDto)
             throws IOException {
-        taskService.create(taskCreateRequestDto);
+        Task task = taskService.create(taskCreateRequestDto);
         webSocketHandler.broadcastMessage(
-                "{\"action\": \"ADD\", \"task\": " + objectMapper.writeValueAsString(taskCreateRequestDto) + "}");
+                "{\"action\": \"ADD\", \"task\": " + objectMapper.writeValueAsString(task) + "}");
         return ResponseEntity.ok("Task created successfully.");
     }
 
     @PostMapping(path = "/update")
     public ResponseEntity<String> update(@RequestBody @Valid TaskUpdateRequestDto taskUpdateRequestDto)
             throws IOException {
-        taskService.update(taskUpdateRequestDto);
+        Task task = taskService.update(taskUpdateRequestDto);
         webSocketHandler.broadcastMessage(
-                "{\"action\": \"UPDATE\", \"task\": " + objectMapper.writeValueAsString(taskUpdateRequestDto) + "}");
+                "{\"action\": \"UPDATE\", \"task\": " + objectMapper.writeValueAsString(task) + "}");
         return ResponseEntity.ok("Task updated successfully.");
     }
 

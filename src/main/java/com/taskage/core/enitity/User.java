@@ -43,7 +43,7 @@ public class User {
     @JoinColumn(name = "team_id", referencedColumnName = "id")
     private Team team;
 
-    @OneToMany(mappedBy = "assignee", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "assignee", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JsonIgnore
     private List<Task> tasks;
 }

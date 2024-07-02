@@ -8,15 +8,14 @@ import com.taskage.core.exception.notFound.NotFoundException;
 import com.taskage.core.mapper.TeamMapper;
 import com.taskage.core.repository.TeamRepository;
 import com.taskage.core.utils.UserActivityLogger;
-import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TeamService {
     private final UserService userService;
     private final TeamRepository teamRepository;
@@ -24,8 +23,7 @@ public class TeamService {
     private final UserActivityLogger userActivityLogger;
 
     @NotNull
-    @Transactional
-    public Team create(@NotNull TeamSaveRequestDto teamSaveRequestDto) throws NotFoundException {
+    public TeamResponseDto create(@NotNull TeamSaveRequestDto teamSaveRequestDto) throws NotFoundException {
         if (teamRepository.existsByName(teamSaveRequestDto.name())) {
             throw new TeamNameConflictException();
         }
@@ -35,12 +33,11 @@ public class TeamService {
         userService.assignTeamToAll(teamSaveRequestDto.teamMemberIds(), newTeam);
 
         userActivityLogger.logUserActivity("Team created with name " + newTeam.getName(), "INFO");
-        return newTeam;
+        return teamMapper.mapTeamSaveRequestDtoToTeamResponseDto(newTeam.getId(), teamSaveRequestDto);
     }
 
     @NotNull
-    @Transactional
-    public Team update(@NotNull TeamSaveRequestDto teamSaveRequestDto) throws NotFoundException {
+    public TeamResponseDto update(@NotNull TeamSaveRequestDto teamSaveRequestDto) throws NotFoundException {
         var team = teamRepository.findById(teamSaveRequestDto.id())
                 .orElseThrow(() -> new NotFoundException("Team not found"));
         team.setName(teamSaveRequestDto.name());
@@ -48,17 +45,15 @@ public class TeamService {
         removeAllUsersFromTeam(team.getId());
         userService.assignTeamToAll(teamSaveRequestDto.teamMemberIds(), team);
         userActivityLogger.logUserActivity("Team updated with id " + team.getId(), "INFO");
-        return teamRepository.getReferenceById(team.getId());
+        return teamMapper.mapTeamSaveRequestDtoToTeamResponseDto(team.getId(), teamSaveRequestDto);
     }
 
-    @Transactional
     public void removeAllUsersFromTeam(int teamId) {
         var team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("Team not found"));
         team.getUsers().forEach(user -> user.setTeam(null));
         userActivityLogger.logUserActivity("All users removed from team with id " + teamId, "INFO");
     }
 
-    @Transactional
     public void delete(int teamId) {
         removeAllUsersFromTeam(teamId);
         teamRepository.deleteById(teamId);
