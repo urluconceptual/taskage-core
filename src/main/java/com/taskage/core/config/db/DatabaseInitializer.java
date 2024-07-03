@@ -132,6 +132,30 @@ public class DatabaseInitializer {
             taskService.create(
                     new TaskCreateRequestDto("Clarify requirements", "Talk to stakeholders about requirements.", 1, 10,
                             2, 5, taskType3, 2));
+
+            taskService.create(new TaskCreateRequestDto("Develop Registration Feature",
+                    "Create the registration functionality with UI design and backend API connection.", 1, 8, 1, 2,
+                    taskType1, 5));
+
+            taskService.create(new TaskCreateRequestDto("Resolve Data Mismatch Issue",
+                    "Fix the bug causing data mismatch in the user profile summary section.", 2, 7, 1, 3, taskType2,
+                    7));
+
+            taskService.create(new TaskCreateRequestDto("Review Code for Latest Updates",
+                    "Conduct a comprehensive review of the recent updates and commits in the codebase.", 1, 10, 1, 3,
+                    taskType3, 2));
+
+            taskService.create(new TaskCreateRequestDto("Revise Project Documentation",
+                    "Amend the project documentation to include recent updates and additional features.", 1, 8, 1, 4,
+                    taskType1, 5));
+
+            taskService.create(new TaskCreateRequestDto("Create New Dashboard Design",
+                    "Design a revamped dashboard interface incorporating recent user feedback.", 2, 7, 1, 4,
+                    taskType2, 7));
+
+            taskService.create(new TaskCreateRequestDto("Gather Requirement Details",
+                    "Discuss with stakeholders to gather and clarify project requirements.", 1, 10, 1, 5, taskType3,
+                    2));
         }
     }
 }
